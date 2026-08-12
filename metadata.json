@@ -1,0 +1,6 @@
+{
+  "name": "Diagnóstico CESU 01 - UNIPAZ",
+  "description": "Prototipo ligero de evaluación y diagnóstico por características y factores del Acuerdo 01 del CESU para el Instituto Universitario de la Paz (UNIPAZ).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

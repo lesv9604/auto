@@ -2,14 +2,15 @@ export interface EvidenceItem {
   id: string;
   label: string;
   checked: boolean;
+  url?: string;   // URL del documento de soporte
   notes?: string;
 }
 
 export interface CharacteristicEvaluation {
   characteristicId: number;
   factorId: number;
-  rating: number; // Scale 1.0 to 5.0
-  weight: number; // Scale 1 to 10
+  rating: number; // Escala 0.0 a 5.0  (0 = sin evaluar)
+  weight: number; // Reservado; la ponderación efectiva se calcula automáticamente
   qualitativeJustification: string;
   actionPlan: string;
   evidences: EvidenceItem[];
@@ -51,22 +52,24 @@ export interface FactorSummary {
   factorName: string;
   factorCode: string;
   characteristicsCount: number;
-  evaluatedCount: number;
+  evaluatedCount: number;   // Características con rating > 0
+  pendingCount: number;     // Características con rating === 0
   averageRating: number;
   totalWeight: number;
   weightedScore: number;
   compliancePercentage: number;
-  statusLevel: 'Deficiente' | 'Aceptable' | 'Alto' | 'Pleno';
+  statusLevel: 'Sin evaluar' | 'Deficiente' | 'Aceptable' | 'Alto' | 'Pleno';
   colorClass: string;
 }
 
 export interface ConsolidatedDiagnostics {
   overallScore: number;
   overallCompliancePercentage: number;
-  statusLevel: 'Deficiente' | 'Aceptable' | 'Alto' | 'Pleno';
+  statusLevel: 'Sin evaluar' | 'Deficiente' | 'Aceptable' | 'Alto' | 'Pleno';
   totalFactors: number;
   totalCharacteristics: number;
   totalEvaluated: number;
+  totalPending: number;
   factorSummaries: FactorSummary[];
   strongestFactor?: FactorSummary;
   weakestFactor?: FactorSummary;
@@ -74,15 +77,14 @@ export interface ConsolidatedDiagnostics {
   evidenceChecklistCompleted: number;
 }
 
-// ─── Gestión de sesiones por programa ───────────────────────────────────────
-
+// ─── Sesiones por programa ────────────────────────────────────────────────────
 export type ProgramLevel = 'pregrado' | 'posgrado';
 
 export interface DiagnosticSession {
-  id: string;           // Clave única, p.ej. "ingagroindustrial_1720000000000"
+  id: string;
   school: string;
   program: string;
   level: ProgramLevel;
-  startDate: string;    // ISO date
-  lastModified: string; // ISO date
+  startDate: string;
+  lastModified: string;
 }

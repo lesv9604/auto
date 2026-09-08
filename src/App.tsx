@@ -287,6 +287,7 @@ export default function App() {
               activeCharacteristicId={activeCharacteristicId}
               onSelectCharacteristic={handleSelectCharacteristic}
               factorSummaries={diagnostics.factorSummaries}
+              evaluations={evaluations}
             />
             <div className="flex-1 min-w-0">
               <CharacteristicForm

@@ -225,3 +225,14 @@ export function createDemoEvaluationData(): Record<number, CharacteristicEvaluat
 
   return evaluations;
 }
+
+// ─── Compatibilidad con Header.tsx ────────────────────────────────────────────
+// Lista plana de todos los programas (pregrado + posgrado) con la forma
+// { name, faculty, campus } que usa el componente Header.
+export const UNIPAZ_PROGRAMS = UNIPAZ_SCHOOLS.flatMap((school) =>
+  school.programs.map((p) => ({
+    name: p.name,
+    faculty: school.name,
+    campus: 'Campus Universitario Santa Rosa, Barrancabermeja',
+  }))
+);

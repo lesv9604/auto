@@ -73,3 +73,16 @@ export interface ConsolidatedDiagnostics {
   evidenceChecklistTotal: number;
   evidenceChecklistCompleted: number;
 }
+
+// ─── Gestión de sesiones por programa ───────────────────────────────────────
+
+export type ProgramLevel = 'pregrado' | 'posgrado';
+
+export interface DiagnosticSession {
+  id: string;           // Clave única, p.ej. "ingagroindustrial_1720000000000"
+  school: string;
+  program: string;
+  level: ProgramLevel;
+  startDate: string;    // ISO date
+  lastModified: string; // ISO date
+}

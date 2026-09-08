@@ -4,7 +4,6 @@ import { CESU_FACTORS } from './data/cesuData';
 import {
   buildProgramInfo,
   createBlankEvaluationData,
-  createDemoEvaluationData,
 } from './data/unipazPrograms';
 import { calculateDiagnostics } from './utils/calc';
 import { Header } from './components/Header';
@@ -226,12 +225,6 @@ export default function App() {
     }
   };
 
-  const handleLoadDemo = () => {
-    if (window.confirm('¿Desea cargar la autoevaluación demostrativa? Se sobrescribirán los datos actuales.')) {
-      setEvaluations(createDemoEvaluationData());
-    }
-  };
-
   const handleResetBlank = () => {
     if (window.confirm('¿Reiniciar la evaluación en blanco? Se perderán todos los datos ingresados.')) {
       setEvaluations(createBlankEvaluationData());
@@ -255,7 +248,6 @@ export default function App() {
         onUpdateProgramInfo={(updated) => setProgramInfo((prev) => ({ ...prev!, ...updated }))}
         activeTab={activeTab}
         onSelectTab={setActiveTab}
-        onLoadDemo={handleLoadDemo}
         onReset={handleResetBlank}
         onOpenExportModal={() => setIsExportModalOpen(true)}
         overallScore={diagnostics.overallScore}

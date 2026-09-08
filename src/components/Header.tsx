@@ -7,7 +7,6 @@ import {
   Download,
   Printer,
   RotateCcw,
-  Sparkles,
   BarChart3,
   ClipboardList,
   Building2,
@@ -20,7 +19,6 @@ interface HeaderProps {
   onUpdateProgramInfo: (updated: Partial<ProgramInfo>) => void;
   activeTab: ActiveTab;
   onSelectTab: (tab: ActiveTab) => void;
-  onLoadDemo: () => void;
   onReset: () => void;
   onOpenExportModal: () => void;
   overallScore: number;
@@ -32,7 +30,6 @@ export const Header: React.FC<HeaderProps> = ({
   onUpdateProgramInfo,
   activeTab,
   onSelectTab,
-  onLoadDemo,
   onReset,
   onOpenExportModal,
   overallScore,
@@ -65,14 +62,6 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Quick Action Controls & Score Pill */}
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={onLoadDemo}
-              className="px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
-              title="Cargar autoevaluación de prueba para UNIPAZ"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              Cargar Demo UNIPAZ
-            </button>
 
             <button
               onClick={onOpenExportModal}

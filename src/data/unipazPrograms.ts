@@ -132,7 +132,7 @@ export function createBlankEvaluationData(): Record<number, CharacteristicEvalua
       evaluations[char.id] = {
         characteristicId: char.id,
         factorId: factor.id,
-        rating: 3.5,
+        rating: 0,
         weight: char.defaultWeight,
         qualitativeJustification: '',
         actionPlan: '',

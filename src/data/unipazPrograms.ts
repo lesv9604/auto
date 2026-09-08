@@ -103,7 +103,7 @@ export function buildProgramInfo(school: string, program: string): ProgramInfo {
   return {
     programName: program,
     faculty: school,
-    campus: 'Campus Universitario Santa Rosa, Barrancabermeja',
+    campus: 'Campus Instituto Universitario de la Paz - UNIPAZ',
     evaluatorName: '',
     evaluatorRole: 'Comité de Autoevaluación Curricular',
     period: '2026-I',
@@ -117,7 +117,7 @@ export function buildProgramInfo(school: string, program: string): ProgramInfo {
 export const DEFAULT_PROGRAM_INFO: ProgramInfo = {
   programName: 'Ingeniería Agroindustrial',
   faculty: 'Escuela de Ingeniería Agroindustrial',
-  campus: 'Campus Universitario Santa Rosa, Barrancabermeja',
+  campus: 'Campus Instituto Universitario de la Paz - UNIPAZ',
   evaluatorName: 'Comité de Autoevaluación Curricular',
   evaluatorRole: 'Evaluador Interno de Calidad',
   period: '2026-I',
@@ -233,6 +233,6 @@ export const UNIPAZ_PROGRAMS = UNIPAZ_SCHOOLS.flatMap((school) =>
   school.programs.map((p) => ({
     name: p.name,
     faculty: school.name,
-    campus: 'Campus Universitario Santa Rosa, Barrancabermeja',
+    campus: 'Campus Instituto Universitario de la Paz - UNIPAZ',
   }))
 );

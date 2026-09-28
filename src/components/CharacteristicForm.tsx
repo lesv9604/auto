@@ -6,6 +6,9 @@ import {
   Award, Scale, FileText, Lightbulb, ListChecks, Link, ExternalLink, X
 } from 'lucide-react';
 
+// Habilita la valoración manual solo en entornos de prueba (Preview/local).
+const VALORACION_MANUAL = import.meta.env.VITE_VALORACION_MANUAL === 'true';
+
 interface CharacteristicFormProps {
   factor: FactorDef;
   characteristic: CharacteristicDef;
@@ -40,11 +43,6 @@ export const CharacteristicForm: React.FC<CharacteristicFormProps> = ({
     onUpdateEvaluation({ ...evaluation, rating: clamped });
   };
 
-  const handleRatingInput = (raw: string) => {
-    if (raw === '' || raw === '.') return;
-    const parsed = parseFloat(raw);
-    if (!isNaN(parsed)) handleRatingChange(parsed);
-  };
 
   const handleToggleEvidence = (id: string) => {
     onUpdateEvaluation({
@@ -143,43 +141,41 @@ export const CharacteristicForm: React.FC<CharacteristicFormProps> = ({
               </span>
             </div>
 
-            {/* Input numérico principal */}
-            <div className="flex items-center gap-3 mb-3">
-              <input
-                type="number"
-                min={0}
-                max={5}
-                step={0.1}
-                value={evaluation.rating === 0 ? '' : evaluation.rating}
-                onChange={(e) => handleRatingInput(e.target.value)}
-                onBlur={(e) => {
-                  if (e.target.value === '') handleRatingChange(0);
-                }}
-                placeholder="0.0"
-                className="w-28 text-3xl font-extrabold text-slate-900 bg-white border-2 border-slate-300 focus:border-emerald-600 focus:outline-none rounded-lg px-3 py-2 text-center"
-              />
+            {/* Valoración: solo lectura (se calcula desde las encuestas) */}
+            <div className="flex items-baseline gap-3 mb-2">
+              <span className="text-4xl font-extrabold text-slate-900">
+                {evaluation.rating > 0 ? evaluation.rating.toFixed(2) : '—'}
+              </span>
               <span className="text-sm text-slate-500">/ 5.0 puntos</span>
             </div>
+            <p className="text-[11px] text-slate-500 italic">
+              Calculado a partir de las encuestas. No editable.
+            </p>
 
-            {/* Botones de selección rápida */}
-            <div className="flex flex-wrap gap-1.5">
-              {quickValues.map((score) => (
-                <button
-                  key={score}
-                  type="button"
-                  onClick={() => handleRatingChange(score)}
-                  className={`px-2.5 py-1 text-xs font-semibold rounded transition-colors ${
-                    evaluation.rating === score
-                      ? 'bg-emerald-700 text-white shadow font-bold'
-                      : score === 0
-                      ? 'bg-slate-200 text-slate-500 hover:bg-slate-300'
-                      : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-100'
-                  }`}
-                >
-                  {score === 0 ? 'Sin eval.' : score.toFixed(1)}
-                </button>
-              ))}
-            </div>
+            {/* Modo prueba: solo si VITE_VALORACION_MANUAL=true */}
+            {VALORACION_MANUAL && (
+              <div className="mt-3 pt-3 border-t border-dashed border-amber-300">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1.5">
+                  Modo prueba · valoración manual
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {quickValues.map((score) => (
+                    <button
+                      key={score}
+                      type="button"
+                      onClick={() => handleRatingChange(score)}
+                      className={`px-2.5 py-1 text-xs font-semibold rounded border transition-colors ${
+                        evaluation.rating === score
+                          ? 'bg-amber-600 text-white border-amber-600'
+                          : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                      }`}
+                    >
+                      {score === 0 ? 'Sin eval.' : score.toFixed(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Ponderación automática */}

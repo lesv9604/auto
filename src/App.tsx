@@ -289,7 +289,7 @@ export default function App() {
                   evaluations[activeCharacteristic.id] || {
                     characteristicId: activeCharacteristic.id,
                     factorId: activeFactor.id,
-                    rating: 3.5,
+                    rating: 0,
                     weight: activeCharacteristic.defaultWeight,
                     qualitativeJustification: '',
                     actionPlan: '',

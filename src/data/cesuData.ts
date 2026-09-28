@@ -10,7 +10,7 @@ export const CESU_FACTORS: FactorDef[] = [
       {
         id: 1,
         factorId: 1,
-        code: 'C1.1',
+        code: 'C01',
         title: 'Proyecto educativo del programa',
         description: 'Coherencia del proyecto educativo del programa académico (PEP) con la misión e identidad de UNIPAZ, orientando el desarrollo de las labores formativas, académicas, docentes, de investigación y extensión.',
         defaultWeight: 9,
@@ -24,7 +24,7 @@ export const CESU_FACTORS: FactorDef[] = [
       {
         id: 2,
         factorId: 1,
-        code: 'C1.2',
+        code: 'C02',
         title: 'Relevancia académica y pertinencia social del programa académico',
         description: 'Respuesta del programa a las necesidades locales, regionales, nacionales o internacionales sustentadas en el entorno territorial (Magdalena Medio y Santander).',
         defaultWeight: 9,
@@ -46,7 +46,7 @@ export const CESU_FACTORS: FactorDef[] = [
       {
         id: 3,
         factorId: 2,
-        code: 'C3',
+        code: 'C03',
         title: 'Incidencia de las actividades de formación integral',
         description: 'Participación activa de los estudiantes en investigación, innovación, extensión, actividades artísticas, culturales, deportivas e internacionales que inciden en su perfil formativo.',
         defaultWeight: 8,
@@ -60,7 +60,7 @@ export const CESU_FACTORS: FactorDef[] = [
       {
         id: 4,
         factorId: 2,
-        code: 'C4',
+        code: 'C04',
         title: 'Orientación, acompañamiento y seguimiento a estudiantes',
         description: 'Procesos de orientación vocacional, inductiva, tutorial y académica integral para favorecer la permanencia y graduación oportuna.',
         defaultWeight: 8,
@@ -74,7 +74,7 @@ export const CESU_FACTORS: FactorDef[] = [
       {
         id: 5,
         factorId: 2,
-        code: 'C5',
+        code: 'C05',
         title: 'Estrategias pedagógicas para el fortalecimiento de la autonomía y el trabajo colaborativo',
         description: 'Desarrollo de capacidades para el trabajo autónomo, el aprendizaje colaborativo y la responsabilidad social en entornos participativos.',
         defaultWeight: 8,
@@ -88,7 +88,7 @@ export const CESU_FACTORS: FactorDef[] = [
       {
         id: 6,
         factorId: 2,
-        code: 'C6',
+        code: 'C06',
         title: 'Políticas académicas, cultura de paz, antirracismo e inclusión',
         description: 'Divulgación y aplicación del reglamento estudiantil, régimen disciplinario, cultura de paz, antirracismo, perspectiva de género y atención a poblaciones diversas.',
         defaultWeight: 9,
@@ -102,7 +102,7 @@ export const CESU_FACTORS: FactorDef[] = [
       {
         id: 7,
         factorId: 2,
-        code: 'C7',
+        code: 'C07',
         title: 'Estímulos y apoyos para estudiantes, diversidad e inclusión',
         description: 'Otorgamiento de becas, auxilios socioeconómicos, monitorías, estímulos al rendimiento académico destacado y apoyos para la diversidad.',
         defaultWeight: 8,
@@ -124,7 +124,7 @@ export const CESU_FACTORS: FactorDef[] = [
       {
         id: 8,
         factorId: 3,
-        code: 'C8',
+        code: 'C08',
         title: 'Selección, vinculación y permanencia de profesores',
         description: 'Criterios transparentes de selección, méritos académicos, vinculación idónea y permanencia profesoral para el mejoramiento del programa.',
         defaultWeight: 9,
@@ -138,7 +138,7 @@ export const CESU_FACTORS: FactorDef[] = [
       {
         id: 9,
         factorId: 3,
-        code: 'C9',
+        code: 'C09',
         title: 'Estatuto, trayectoria y reconocimiento profesoral',
         description: 'Aplicación del estatuto profesoral, escalafón docente, reconocimientos a los méritos académicos, investigativos y profesionales.',
         defaultWeight: 8,

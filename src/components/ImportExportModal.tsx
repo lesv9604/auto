@@ -38,7 +38,7 @@ export const ImportExportModal: React.FC<ImportExportModalProps> = ({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    const sanitizedProgram = programInfo.programName.replace(/[^a-zA-Z0-0]/g, '_');
+    const sanitizedProgram = programInfo.programName.replace(/[^a-zA-Z0-9]/g, '_');
     link.download = `Diagnostico_CESU01_${sanitizedProgram}_${programInfo.period}.json`;
     document.body.appendChild(link);
     link.click();
@@ -48,7 +48,7 @@ export const ImportExportModal: React.FC<ImportExportModalProps> = ({
 
   // Export CSV
   const handleExportCSV = () => {
-    let csvContent = 'Factor_Codigo,Factor_Nombre,Caracteristica_Codigo,Caracteristica_Titulo,Valoracion_1a5,Ponderacion_1a10,Puntaje_Ponderado,Evidencias_Cumplidas,Evidencias_Totales,Justificacion_Cualitativa,Plan_de_Accion\n';
+    let csvContent = 'Factor_Codigo,Factor_Nombre,Caracteristica_Codigo,Caracteristica_Titulo,Valoracion_0a5,Peso_en_Factor_pct,Aporte_al_Factor,Evidencias_Cumplidas,Evidencias_Totales,Justificacion_Cualitativa,Plan_de_Accion\n';
 
     CESU_FACTORS.forEach((factor) => {
       factor.characteristics.forEach((char) => {
@@ -59,8 +59,8 @@ export const ImportExportModal: React.FC<ImportExportModalProps> = ({
           const charCode = `"${char.code}"`;
           const charTitle = `"${char.title.replace(/"/g, '""')}"`;
           const rating = ev.rating.toFixed(1);
-          const weight = ev.weight;
-          const weightedScore = (ev.rating * ev.weight).toFixed(1);
+          const weight = (100 / factor.characteristics.length).toFixed(1);
+          const weightedScore = (ev.rating / factor.characteristics.length).toFixed(2);
           const totalEv = ev.evidences.length;
           const checkedEv = ev.evidences.filter((e) => e.checked).length;
           const justification = `"${(ev.qualitativeJustification || '').replace(/"/g, '""')}"`;
@@ -75,7 +75,7 @@ export const ImportExportModal: React.FC<ImportExportModalProps> = ({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    const sanitizedProgram = programInfo.programName.replace(/[^a-zA-Z0-0]/g, '_');
+    const sanitizedProgram = programInfo.programName.replace(/[^a-zA-Z0-9]/g, '_');
     link.download = `Diagnostico_CESU01_${sanitizedProgram}_${programInfo.period}.csv`;
     document.body.appendChild(link);
     link.click();

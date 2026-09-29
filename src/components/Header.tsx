@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <button
-              onClick={() => { onSelectTab('report'); setTimeout(() => window.print(), 300); }}
+              onClick={() => { onSelectTab('report'); setTimeout(() => document.getElementById('btn-imprimir-informe')?.click(), 300); }}
               className="px-3 py-1.5 text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 rounded shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5 text-sky-600" />

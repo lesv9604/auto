@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { CharacteristicEvaluation, ConsolidatedDiagnostics, ProgramInfo, SurveySummary } from '../types';
 import { CESU_FACTORS } from '../data/cesuData';
 import { INSTITUCION } from '../data/institution';
 import { Printer } from 'lucide-react';
 import logo from '../assets/logo-unipaz.png';
+import { printReport } from '../utils/printReport';
 
 interface PrintableReportProps {
   programInfo: ProgramInfo;
@@ -45,6 +46,12 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
     porActor(ev.survey).forEach(([a, d]) => { encuestados[a] = Math.max(encuestados[a] ?? 0, d.n); });
   });
   const totalEncuestados = Object.values(encuestados).reduce((s, n) => s + n, 0);
+  const reportRef = useRef<HTMLDivElement>(null);
+  const handlePrint = () => {
+    if (!reportRef.current) return;
+    const nombre = `Informe_Autoevaluacion_${programInfo.programName}_${programInfo.period}`.replace(/[^\p{L}\p{N}]+/gu, '_');
+    printReport(reportRef.current, nombre);
+  };
   const hoy = new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
@@ -54,14 +61,14 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
         <p className="text-xs text-slate-500">
           Vista previa del informe. Use <b>Imprimir / Guardar como PDF</b> y elija tamaño <b>Carta</b>, márgenes <b>Predeterminados</b> y active <b>Gráficos de fondo</b>.
         </p>
-        <button onClick={() => window.print()}
+        <button id="btn-imprimir-informe" onClick={handlePrint}
           className="px-4 py-2 text-white text-xs font-semibold rounded-lg flex items-center gap-2 shrink-0 ml-4"
           style={{ background: azul }}>
           <Printer className="w-4 h-4" /> Imprimir / Guardar como PDF
         </button>
       </div>
 
-      <div className="rpt" style={{ fontFamily: INSTITUCION.fuente }}>
+      <div ref={reportRef} id="informe-rpt" className="rpt" style={{ fontFamily: INSTITUCION.fuente }}>
         {/* Membrete (se repite en cada página al imprimir) */}
         <header className="rpt-header">
           <img src={logo} alt={`${INSTITUCION.sigla} ${INSTITUCION.nombre}`} className="rpt-logo" />

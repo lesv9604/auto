@@ -134,10 +134,14 @@ export function parseResultsCsv(text: string, escuela: string, programa: string)
     if (!/^C\d{2}$/.test(code)) continue;
     const actor = r[idx.Actor].trim();
     const a = (actores[actor] ??= { n: num(r[idx.Encuestados]), items: {} });
-    a.items[code] = {
+    const c = {
       mf: num(r[idx.MuyFavorable]), f: num(r[idx.Favorable]), d: num(r[idx.Desfavorable]),
       md: num(r[idx.MuyDesfavorable]), na: num(r[idx.NoAplica]),
     };
+    if (a.n === 0 && c.mf + c.f + c.d + c.md + c.na > 0) {
+      throw new Error(`${actor} ${code}: hay respuestas pero Encuestados es 0.`);
+    }
+    a.items[code] = c;
   }
   if (!Object.keys(actores).length) throw new Error('El archivo no contiene resultados por característica.');
 

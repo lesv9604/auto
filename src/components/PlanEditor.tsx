@@ -36,6 +36,10 @@ export const PlanEditor: React.FC<Props> = ({ evaluation, onUpdate }) => {
         </button>
       </div>
 
+      <p className="text-[11px] text-slate-600">
+        <b>Ruta por brecha:</b> línea base → indicador → meta → responsable → plazo, y monitoree el cierre desde el SIAC.
+      </p>
+
       {planes.length === 0 && (
         <p className={`text-[11px] p-2 rounded border ${prioritaria ? 'bg-amber-50 border-amber-300 text-amber-800' : 'bg-white border-slate-200 text-slate-500'}`}>
           {prioritaria

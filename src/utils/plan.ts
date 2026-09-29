@@ -3,6 +3,11 @@ import { CESU_FACTORS } from '../data/cesuData';
 import { ESCALA_CNA } from '../data/cesuAspects';
 
 
+/** Ruta metodológica del plan de mejoramiento continuo (se aplica a cada brecha). */
+export const RUTA_PLAN = ['Línea base', 'Indicador', 'Meta', 'Responsable', 'Plazo'] as const;
+export const RUTA_TEXTO =
+  'Para cada brecha en el plan de mejoramiento defina: línea base → indicador → meta → responsable → plazo, y monitoree el cierre desde el SIAC. Exporte la matriz a Excel para cruzarla con el repositorio de evidencias.';
+
 /** Responsable genérico: las acciones las aborda el equipo, no una persona. */
 export const RESPONSABLE_DEFECTO = 'Comité de autoevaluación del programa';
 
@@ -105,7 +110,11 @@ export function analisisPlan(evaluations: Record<number, CharacteristicEvaluatio
   const criticas = prioritarias.filter((x) => (x.ev!.rating > 0 && x.ev!.rating < 3) || x.ev!.cnaLevel === 'NC');
   const fortalecer = prioritarias.filter((x) => !criticas.includes(x));
   const lista = (xs: typeof chars) => xs.length <= 15 ? `: ${xs.map((x) => x.c.code).join(', ')}` : ' (ver detalle por característica)';
-  t.push(`Se consideran prioritarias las características con valoración inferior a 4,0 o con apreciación del Comité «No se cumple» o «Se cumple insuficientemente». En este ejercicio se identifican ${prioritarias.length} característica(s) prioritaria(s): ${criticas.length} en situación crítica (valoración inferior a 3,0 o calificación NC)${criticas.length ? lista(criticas) : ''}, y ${fortalecer.length} por fortalecer (valoración entre 3,0 y 3,99 o calificación CI)${fortalecer.length ? lista(fortalecer) : ''}.`);
+  if (!prioritarias.length) {
+    t.push('No se identificaron brechas en las características valoradas: ninguna presenta valoración inferior a 4,0 ni calificación del Comité «No se cumple» o «Se cumple insuficientemente». Las acciones registradas se orientan al sostenimiento de las fortalezas.');
+  } else {
+    t.push(`Se consideran brechas (características prioritarias) las características con valoración inferior a 4,0 o con apreciación del Comité «No se cumple» o «Se cumple insuficientemente». En este ejercicio se identifican ${prioritarias.length} característica(s) prioritaria(s): ${criticas.length} en situación crítica (valoración inferior a 3,0 o calificación NC)${criticas.length ? lista(criticas) : ''}, y ${fortalecer.length} por fortalecer (valoración entre 3,0 y 3,99 o calificación CI)${fortalecer.length ? lista(fortalecer) : ''}.`);
+  }
   if (filas.length) {
     t.push(`El plan registra ${filas.length} acción(es) de mejora${top ? `, concentradas principalmente en los factores ${top}` : ''}. Estado de las acciones: ${cuenta('Sin iniciar')} sin iniciar, ${cuenta('En ejecución')} en ejecución, ${cuenta('Cumplida')} cumplida(s), ${cuenta('Vencida')} vencida(s) y ${cuenta('Cancelada')} cancelada(s). El avance promedio reportado es de ${avance} %.`);
   } else {
@@ -116,4 +125,19 @@ export function analisisPlan(evaluations: Record<number, CharacteristicEvaluatio
   }
   t.push('Cada acción se formula a partir de su causa raíz, parte de una línea base con fecha, define un indicador y una meta verificables, y se cierra únicamente con evidencia. El seguimiento periódico permitirá actualizar el avance y el estado de cada acción e incorporar sus resultados en el siguiente ciclo de autoevaluación.');
   return t;
+}
+
+/** Matriz del plan en CSV para Excel (separador «;» y BOM UTF-8, configuración regional es-CO). */
+export function planCsv(filas: FilaPlan[]): string {
+  const enc = ['Factor', 'Característica', 'Nivel', 'Apreciaciones y hallazgos', 'Causa raíz', 'Línea base (valor)', 'Línea base (fecha)',
+    'Indicador de mejora', 'Meta', 'Acción de mejora', 'Responsable', 'Fecha de inicio', 'Fecha límite', 'Plazo (meses)',
+    'Avance (%)', 'Estado', 'Evidencia de cierre', 'Observaciones'];
+  const cel = (v: string | number) => {
+    const x = String(v ?? '');
+    return /[";\n\r]/.test(x) ? `"${x.replace(/"/g, '""')}"` : x;
+  };
+  const rows = filas.map((r) => [r.factor, `${r.codigo} ${r.caracteristica}`, r.nivel, r.hallazgos, r.p.causaRaiz,
+    r.p.lineaBaseValor, r.p.lineaBaseFecha, r.p.indicador, r.p.meta, r.p.accion, r.p.responsable, r.p.fechaInicio,
+    r.p.fechaLimite, r.plazo.replace('.', ','), r.p.avance, r.estado, r.p.evidenciaCierre, r.p.observaciones]);
+  return '﻿' + [enc, ...rows].map((f) => f.map(cel).join(';')).join('\r\n');
 }

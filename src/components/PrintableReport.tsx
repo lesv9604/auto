@@ -4,8 +4,8 @@ import { CESU_FACTORS } from '../data/cesuData';
 import { INSTITUCION } from '../data/institution';
 import { ESCALA_CNA, CESU_ASPECTS } from '../data/cesuAspects';
 import { trazabilidad, enlacesDe } from '../utils/process';
-import { filasPlan, analisisPlan, hallazgosDe, planesDe, fmtFechaCorta, ESTADO_COLOR } from '../utils/plan';
-import { Printer, FileText } from 'lucide-react';
+import { RUTA_PLAN, planCsv, filasPlan, analisisPlan, hallazgosDe, planesDe, fmtFechaCorta, ESTADO_COLOR } from '../utils/plan';
+import { Printer, FileText, FileSpreadsheet } from 'lucide-react';
 import logo from '../assets/logo-unipaz.png';
 import { printReport } from '../utils/printReport';
 
@@ -54,6 +54,14 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
   const reportRef = useRef<HTMLDivElement>(null);
   const [generando, setGenerando] = useState(false);
   const nombreArchivo = `Informe_Autoevaluacion_${programInfo.programName}_${programInfo.period}`.replace(/[^\p{L}\p{N}]+/gu, '_');
+  const handleExcel = () => {
+    const blob = new Blob([planCsv(filasPlan(evaluations))], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `Plan_Mejoramiento_${programInfo.programName}_${programInfo.period}`.replace(/[^\p{L}\p{N}]+/gu, '_') + '.csv';
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { a.remove(); URL.revokeObjectURL(a.href); }, 2000);
+  };
   const handleDocx = async () => {
     if (faltaResponsable) return;
     setGenerando(true);
@@ -109,6 +117,11 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
           Vista previa del informe. Use <b>Imprimir / Guardar como PDF</b> y elija tamaño <b>Carta</b>, márgenes <b>Predeterminados</b> y active <b>Gráficos de fondo</b>.
         </p>
         <div className="flex gap-2 shrink-0 ml-4">
+        <button onClick={handleExcel}
+          className="px-4 py-2 text-xs font-semibold rounded-lg flex items-center gap-2 border-2 bg-white"
+          style={{ borderColor: verde, color: verde }} title="Matriz del plan de mejoramiento en formato CSV para Excel">
+          <FileSpreadsheet className="w-4 h-4" /> Plan a Excel
+        </button>
         <button onClick={handleDocx} disabled={generando || faltaResponsable}
           className="px-4 py-2 text-xs font-semibold rounded-lg flex items-center gap-2 border-2 bg-white disabled:opacity-60"
           style={{ borderColor: azul, color: azul }}>
@@ -341,6 +354,15 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
             {/* ── 5. Plan de mejoramiento ─────────────────────────── */}
             <section className="rpt-sec">
               <h2 style={{ color: azul, borderColor: verde }}>6. Plan de mejoramiento</h2>
+              <div className="rpt-ruta">
+                <p className="rpt-ruta-t" style={{ color: azul }}>Ruta metodológica para cada brecha</p>
+                <div className="rpt-ruta-steps">
+                  <span className="rpt-step rpt-step-0">Brecha</span>
+                  {RUTA_PLAN.map((r) => <span key={r} className="rpt-step">{r}</span>)}
+                  <span className="rpt-step rpt-step-end" style={{ background: verde }}>Monitoreo y cierre (SIAC)</span>
+                </div>
+                <p><b>Para cada brecha en el plan de mejoramiento defina:</b> línea base → indicador → meta → responsable → plazo, y monitoree el cierre desde el SIAC. Exporte la matriz a Excel para cruzarla con el repositorio de evidencias.</p>
+              </div>
               {analisis.map((t, i) => <p key={i}>{t}</p>)}
 
               {filas.length > 0 && (

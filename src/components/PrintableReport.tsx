@@ -1,8 +1,9 @@
 import React from 'react';
-import { CharacteristicEvaluation, ConsolidatedDiagnostics, ProgramInfo } from '../types';
+import { CharacteristicEvaluation, ConsolidatedDiagnostics, ProgramInfo, SurveySummary } from '../types';
 import { CESU_FACTORS } from '../data/cesuData';
-import { getStatusBadgeInfo } from '../utils/calc';
-import { GraduationCap, Printer, Calendar, User, FileText, CheckCircle } from 'lucide-react';
+import { INSTITUCION } from '../data/institution';
+import { Printer } from 'lucide-react';
+import logo from '../assets/logo-unipaz.png';
 
 interface PrintableReportProps {
   programInfo: ProgramInfo;
@@ -10,210 +11,243 @@ interface PrintableReportProps {
   evaluations: Record<number, CharacteristicEvaluation>;
 }
 
-export const PrintableReport: React.FC<PrintableReportProps> = ({
-  programInfo,
-  diagnostics,
-  evaluations
-}) => {
-  const statusBadge = getStatusBadgeInfo(diagnostics.overallScore);
+const { azul, verde } = INSTITUCION.colores;
+type ActorRes = SurveySummary['byActor'][string];
+const porActor = (s: SurveySummary) => Object.entries(s.byActor) as [string, ActorRes][];
+
+const NIVEL_COLOR: Record<string, string> = {
+  Pleno: '#00963F', Alto: '#2E8B57', Aceptable: '#B7791F', Deficiente: '#B42318', 'Sin evaluar': '#6B7280',
+};
+const nivelDe = (r: number) =>
+  r === 0 ? 'Sin evaluar' : r >= 4.5 ? 'Pleno' : r >= 4.0 ? 'Alto' : r >= 3.0 ? 'Aceptable' : 'Deficiente';
+
+const Nivel: React.FC<{ nivel: string }> = ({ nivel }) => (
+  <span className="rpt-chip" style={{ borderColor: NIVEL_COLOR[nivel], color: NIVEL_COLOR[nivel] }}>{nivel}</span>
+);
+
+const fmtFecha = (iso: string) => {
+  const d = new Date(`${iso}T12:00:00`);
+  return isNaN(d.getTime()) ? iso : d.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
+};
+
+export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, diagnostics, evaluations }) => {
+  const chars = CESU_FACTORS.flatMap((f) => f.characteristics.map((c) => ({ ...c, factor: f, ev: evaluations[c.id] })));
+  const evaluadas = chars.filter((c) => c.ev && c.ev.rating > 0).sort((a, b) => b.ev.rating - a.ev.rating);
+  const fortalezas = evaluadas.slice(0, 5);
+  const oportunidades = [...evaluadas].reverse().slice(0, 5);
+
+  // Encuestados por actor y periodo de las respuestas (tomado de las encuestas cargadas)
+  const encuestados: Record<string, number> = {};
+  let periodo: string | undefined;
+  chars.forEach(({ ev }) => {
+    if (!ev?.survey) return;
+    periodo ??= ev.survey.periodo;
+    porActor(ev.survey).forEach(([a, d]) => { encuestados[a] = Math.max(encuestados[a] ?? 0, d.n); });
+  });
+  const totalEncuestados = Object.values(encuestados).reduce((s, n) => s + n, 0);
+  const hoy = new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
-    <div className="bg-white text-slate-900 p-6 sm:p-10 rounded-xl border border-slate-200 shadow-sm space-y-8 max-w-5xl mx-auto print:border-none print:shadow-none print:p-0 print:max-w-none">
-      {/* Print Trigger Button */}
-      <div className="flex justify-between items-center pb-4 border-b border-slate-200 print:hidden">
-        <div>
-          <h2 className="text-base font-bold text-slate-900">
-            Informe Ejecutativo de Diagnóstico Académico
-          </h2>
-          <p className="text-xs text-slate-500">
-            Formato oficial para el Comité de Autoevaluación Curricular de UNIPAZ.
-          </p>
-        </div>
-        <button
-          onClick={() => window.print()}
-          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-2 cursor-pointer transition-colors"
-        >
-          <Printer className="w-4 h-4" />
-          Imprimir / Guardar como PDF
+    <div className="rpt-wrap">
+      {/* Barra de acciones (solo pantalla) */}
+      <div className="flex justify-between items-center mb-4 print:hidden max-w-[210mm] mx-auto">
+        <p className="text-xs text-slate-500">
+          Vista previa del informe. Use <b>Imprimir / Guardar como PDF</b> y elija tamaño <b>Carta</b>, márgenes <b>Predeterminados</b> y active <b>Gráficos de fondo</b>.
+        </p>
+        <button onClick={() => window.print()}
+          className="px-4 py-2 text-white text-xs font-semibold rounded-lg flex items-center gap-2 shrink-0 ml-4"
+          style={{ background: azul }}>
+          <Printer className="w-4 h-4" /> Imprimir / Guardar como PDF
         </button>
       </div>
 
-      {/* Official Header */}
-      <div className="flex items-center justify-between border-b-2 border-slate-900 pb-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-slate-900 text-white rounded-lg flex items-center justify-center">
-            <GraduationCap className="w-8 h-8" />
+      <div className="rpt" style={{ fontFamily: INSTITUCION.fuente }}>
+        {/* Membrete (se repite en cada página al imprimir) */}
+        <header className="rpt-header">
+          <img src={logo} alt={`${INSTITUCION.sigla} ${INSTITUCION.nombre}`} className="rpt-logo" />
+          <div className="rpt-header-txt">
+            <div className="rpt-h-sistema" style={{ color: azul }}>{INSTITUCION.sistema}</div>
+            <div className="rpt-h-doc">Informe de autoevaluación de programa académico · Acuerdo CESU 01 de 2025</div>
           </div>
-          <div>
-            <h1 className="text-lg font-extrabold text-slate-900 uppercase tracking-tight">
-              Instituto Universitario de la Paz (UNIPAZ)
-            </h1>
-            <p className="text-xs font-semibold text-slate-600">
-              Sistema Interno de Aseguramiento de la Calidad (SIAC)
-            </p>
-            <p className="text-[10px] text-slate-500">
-              Evaluación Diagnóstica según Modelo de Acreditación CESU (Acuerdo 01 de 2025)
-            </p>
+          <div className="rpt-h-meta">
+            <div>Periodo <b>{programInfo.period}</b></div>
+            <div>{programInfo.programName}</div>
           </div>
-        </div>
+          <div className="rpt-rule"><span style={{ background: azul }} /><span style={{ background: verde }} /></div>
+        </header>
 
-        <div className="text-right">
-          <div className="inline-block bg-slate-100 text-slate-800 text-xs font-mono font-bold px-3 py-1 rounded border border-slate-300">
-            PERIODO: {programInfo.period}
+        <footer className="rpt-footer">
+          <div className="rpt-rule"><span style={{ background: verde }} /><span style={{ background: azul }} /></div>
+          <div className="rpt-f-txt">
+            <span><b style={{ color: azul }}>{INSTITUCION.sigla}</b> · {INSTITUCION.nombre} · {INSTITUCION.ciudad} · {INSTITUCION.web}</span>
+            <span>Generado el {hoy}</span>
           </div>
-          <div className="text-[10px] text-slate-500 mt-1">
-            Fecha de emisión: {programInfo.evaluationDate}
-          </div>
-        </div>
-      </div>
+          <div className="rpt-f-legal">{INSTITUCION.pie}</div>
+        </footer>
 
-      {/* Program Metadata Box */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200 text-xs">
-        <div>
-          <span className="text-[10px] uppercase font-bold text-slate-500 block">
-            Programa Académico
-          </span>
-          <span className="font-bold text-slate-900">{programInfo.programName}</span>
-        </div>
-        <div>
-          <span className="text-[10px] uppercase font-bold text-slate-500 block">
-            Escuela / Facultad
-          </span>
-          <span className="font-semibold text-slate-800">{programInfo.faculty}</span>
-        </div>
-        <div>
-          <span className="text-[10px] uppercase font-bold text-slate-500 block">
-            Evaluador / Comité
-          </span>
-          <span className="font-semibold text-slate-800">{programInfo.evaluatorName}</span>
-        </div>
-        <div>
-          <span className="text-[10px] uppercase font-bold text-slate-500 block">
-            Sede / Campus
-          </span>
-          <span className="font-semibold text-slate-800">{programInfo.campus}</span>
-        </div>
-      </div>
+        {/* Tabla contenedora: thead/tfoot reservan el espacio del membrete en cada página */}
+        <table className="rpt-page">
+          <thead><tr><td><div className="rpt-space-top" /></td></tr></thead>
+          <tfoot><tr><td><div className="rpt-space-bottom" /></td></tr></tfoot>
+          <tbody><tr><td>
 
-      {/* Score Summary Box */}
-      <div className="p-5 bg-slate-900 text-white rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-            Resultado Global del Diagnóstico
-          </span>
-          <h3 className="text-2xl font-extrabold text-white mt-1">
-            {diagnostics.overallScore.toFixed(2)} / 5.00 Puntos
-          </h3>
-          <p className="text-xs text-slate-300 mt-1">
-            Nivel de cumplimiento: <strong>{diagnostics.statusLevel}</strong> (
-            {diagnostics.overallCompliancePercentage}% de logro)
-          </p>
-        </div>
+            {/* ── Portada ─────────────────────────────────────────── */}
+            <section className="rpt-cover">
+              <p className="rpt-kicker" style={{ color: verde }}>Informe de autoevaluación</p>
+              <h1 style={{ color: azul }}>{programInfo.programName}</h1>
+              <p className="rpt-sub">{programInfo.faculty}</p>
+              <table className="rpt-kv">
+                <tbody>
+                  <tr><th>Periodo académico</th><td>{programInfo.period}</td></tr>
+                  <tr><th>Fecha de emisión</th><td>{fmtFecha(programInfo.evaluationDate)}</td></tr>
+                  <tr><th>Responsable</th><td>{programInfo.evaluatorName || '—'} · {programInfo.evaluatorRole}</td></tr>
+                  <tr><th>Sede</th><td>{programInfo.campus}</td></tr>
+                  <tr><th>Referente</th><td>Acuerdo 01 de 2025 del CESU — 12 factores y 51 características</td></tr>
+                  {periodo && <tr><th>Respuestas de encuestas</th><td>{periodo} · {totalEncuestados} encuestados</td></tr>}
+                </tbody>
+              </table>
+            </section>
 
-        <div className="text-right">
-          <span className="text-xs text-slate-300 block">Aspectos Mínimos Cumplidos</span>
-          <span className="text-xl font-bold text-emerald-400">
-            {diagnostics.evidenceChecklistCompleted} / {diagnostics.evidenceChecklistTotal}
-          </span>
-        </div>
-      </div>
+            {/* ── 1. Resultado global ─────────────────────────────── */}
+            <section className="rpt-sec">
+              <h2 style={{ color: azul, borderColor: verde }}>1. Resultado global</h2>
+              <div className="rpt-kpis">
+                <div className="rpt-kpi" style={{ borderColor: azul }}>
+                  <span>Valoración global</span>
+                  <b style={{ color: azul }}>{diagnostics.overallScore.toFixed(2)}<small> / 5.00</small></b>
+                </div>
+                <div className="rpt-kpi" style={{ borderColor: azul }}>
+                  <span>Nivel de cumplimiento</span>
+                  <b style={{ color: NIVEL_COLOR[diagnostics.statusLevel] }}>{diagnostics.statusLevel}</b>
+                </div>
+                <div className="rpt-kpi" style={{ borderColor: azul }}>
+                  <span>Grado de logro</span>
+                  <b style={{ color: azul }}>{diagnostics.overallCompliancePercentage}%</b>
+                </div>
+                <div className="rpt-kpi" style={{ borderColor: azul }}>
+                  <span>Características evaluadas</span>
+                  <b style={{ color: azul }}>{diagnostics.totalEvaluated}<small> / {diagnostics.totalCharacteristics}</small></b>
+                </div>
+              </div>
+              {totalEncuestados > 0 && (
+                <p className="rpt-note">
+                  Participación: {Object.entries(encuestados).map(([a, n]) => `${a} ${n}`).join(' · ')}.
+                </p>
+              )}
+            </section>
 
-      {/* Consolidated Table by Factor */}
-      <div>
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-3 pb-1 border-b border-slate-200">
-          1. Consolidado por Factores CESU 01
-        </h3>
+            {/* ── 2. Consolidado por factor ───────────────────────── */}
+            <section className="rpt-sec">
+              <h2 style={{ color: azul, borderColor: verde }}>2. Consolidado por factor</h2>
+              <table className="rpt-table">
+                <thead>
+                  <tr style={{ background: azul }}>
+                    <th>Factor</th><th>Nombre</th><th className="c">Caract.</th>
+                    <th className="r">Valoración</th><th className="r">Logro</th><th className="c">Nivel</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {diagnostics.factorSummaries.map((f) => (
+                    <tr key={f.factorId}>
+                      <td className="mono b">{f.factorCode}</td>
+                      <td>{f.factorName}</td>
+                      <td className="c">{f.evaluatedCount}/{f.characteristicsCount}</td>
+                      <td className="r b">{f.averageRating > 0 ? f.averageRating.toFixed(2) : '—'}</td>
+                      <td className="r">
+                        <div className="rpt-bar"><i style={{ width: `${f.compliancePercentage}%`, background: verde }} /></div>
+                        {f.compliancePercentage}%
+                      </td>
+                      <td className="c"><Nivel nivel={f.statusLevel} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
 
-        <table className="w-full text-left text-xs border-collapse">
-          <thead>
-            <tr className="bg-slate-100 text-slate-800 uppercase text-[10px] font-bold border-b border-slate-300">
-              <th className="p-2">Código</th>
-              <th className="p-2">Factor</th>
-              <th className="p-2 text-center">Característ.</th>
-              <th className="p-2 text-right">Promedio</th>
-              <th className="p-2 text-center">% Cumplimiento</th>
-              <th className="p-2 text-center">Estado</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200">
-            {diagnostics.factorSummaries.map((f) => (
-              <tr key={f.factorId}>
-                <td className="p-2 font-mono font-bold text-slate-900">{f.factorCode}</td>
-                <td className="p-2 font-medium text-slate-900">{f.factorName}</td>
-                <td className="p-2 text-center font-mono">{f.characteristicsCount}</td>
-                <td className="p-2 text-right font-bold text-slate-900">{f.averageRating.toFixed(2)}</td>
-                <td className="p-2 text-center">{f.compliancePercentage}%</td>
-                <td className="p-2 text-center">
-                  <span className="font-semibold text-slate-800">{f.statusLevel}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+            {/* ── 3. Fortalezas y oportunidades ───────────────────── */}
+            {evaluadas.length > 0 && (
+              <section className="rpt-sec rpt-avoid">
+                <h2 style={{ color: azul, borderColor: verde }}>3. Fortalezas y oportunidades de mejora</h2>
+                <div className="rpt-two">
+                  {[['Características mejor valoradas', fortalezas, verde], ['Características con menor valoración', oportunidades, '#B42318']].map(
+                    ([titulo, lista, color]) => (
+                      <div key={titulo as string}>
+                        <h3 style={{ color: color as string }}>{titulo as string}</h3>
+                        <ol>
+                          {(lista as typeof evaluadas).map((c) => (
+                            <li key={c.id}><b className="mono">{c.code}</b> {c.title} — <b>{c.ev.rating.toFixed(2)}</b></li>
+                          ))}
+                        </ol>
+                      </div>
+                    )
+                  )}
+                </div>
+              </section>
+            )}
+
+            {/* ── 4. Detalle por característica ───────────────────── */}
+            <section className="rpt-sec">
+              <h2 style={{ color: azul, borderColor: verde }}>4. Detalle por característica</h2>
+              {CESU_FACTORS.map((factor) => (
+                <div key={factor.id} className="rpt-factor">
+                  <h3 className="rpt-factor-t" style={{ background: azul }}>{factor.code}. {factor.name}</h3>
+                  {factor.characteristics.map((char) => {
+                    const ev = evaluations[char.id];
+                    if (!ev) return null;
+                    const actores = ev.survey ? porActor(ev.survey) : [];
+                    const evid = ev.evidences.filter((e) => e.checked).length;
+                    return (
+                      <div key={char.id} className="rpt-char">
+                        <div className="rpt-char-h">
+                          <span><b className="mono" style={{ color: verde }}>{char.code}</b> {char.title}</span>
+                          <span className="rpt-char-score">
+                            {ev.rating > 0 ? ev.rating.toFixed(2) : '—'} <Nivel nivel={nivelDe(ev.rating)} />
+                          </span>
+                        </div>
+                        {actores.length > 0 && (
+                          <p className="rpt-actors">
+                            Percepción (Likert 1–4): {actores.map(([a, d]) => `${a} ${d.likert.toFixed(2)} (n=${d.n})`).join(' · ')}
+                          </p>
+                        )}
+                        {ev.qualitativeJustification && <p><b>Análisis:</b> {ev.qualitativeJustification}</p>}
+                        {ev.actionPlan && <p><b>Plan de mejoramiento:</b> {ev.actionPlan}</p>}
+                        {ev.evidences.length > 0 && <p className="rpt-muted">Evidencias verificadas: {evid} de {ev.evidences.length}</p>}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </section>
+
+            {/* ── 5. Nota metodológica ────────────────────────────── */}
+            <section className="rpt-sec rpt-avoid">
+              <h2 style={{ color: azul, borderColor: verde }}>5. Nota metodológica</h2>
+              <p>
+                Las valoraciones provienen de encuestas de percepción aplicadas a los actores del programa con escala:
+                Muy favorable (4), Favorable (3), Desfavorable (2) y Muy desfavorable (1); «No aplica» se excluye del cálculo.
+                Para cada característica se promedia por actor, luego se promedian los actores (cada actor pesa igual) y el
+                resultado se convierte a la escala 1–5 mediante <i>v = 1 + (x − 1) × 4/3</i>. La valoración de cada factor es el
+                promedio de sus características (igual peso) y la global el promedio de todas las características evaluadas.
+                Niveles: Pleno ≥ 4,5 · Alto ≥ 4,0 · Aceptable ≥ 3,0 · Deficiente &lt; 3,0.
+              </p>
+            </section>
+
+            {/* ── Firmas ──────────────────────────────────────────── */}
+            <section className="rpt-sign rpt-avoid">
+              <div>
+                <div className="rpt-line" />
+                <b>{programInfo.evaluatorName || 'Nombre del responsable'}</b>
+                <span>{programInfo.evaluatorRole}</span>
+              </div>
+              <div>
+                <div className="rpt-line" />
+                <b>Dirección / Comité de Aseguramiento de la Calidad</b>
+                <span>{INSTITUCION.sigla} · {INSTITUCION.ciudad}</span>
+              </div>
+            </section>
+
+          </td></tr></tbody>
         </table>
-      </div>
-
-      {/* Detailed Characteristics Breakdown */}
-      <div>
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-3 pb-1 border-b border-slate-200">
-          2. Detalle Cualitativo y Justificaciones por Característica
-        </h3>
-
-        <div className="space-y-4">
-          {CESU_FACTORS.map((factor) => (
-            <div key={factor.id} className="space-y-2">
-              <h4 className="text-xs font-bold text-emerald-800 uppercase tracking-wide bg-emerald-50 p-2 rounded border border-emerald-200">
-                {factor.code}: {factor.name}
-              </h4>
-
-              {factor.characteristics.map((char) => {
-                const evalData = evaluations[char.id];
-                if (!evalData) return null;
-
-                return (
-                  <div key={char.id} className="p-3 bg-slate-50 rounded border border-slate-200 text-xs space-y-1.5">
-                    <div className="flex items-start justify-between gap-2 font-bold text-slate-900">
-                      <span>
-                        {char.code} - {char.title}
-                      </span>
-                      <span className="font-mono text-emerald-700 shrink-0">
-                        Valoración: {evalData.rating.toFixed(1)} / 5.0 (Peso: {evalData.weight})
-                      </span>
-                    </div>
-
-                    {evalData.qualitativeJustification && (
-                      <p className="text-slate-700 italic leading-relaxed">
-                        <strong>Justificación:</strong> {evalData.qualitativeJustification}
-                      </p>
-                    )}
-
-                    {evalData.actionPlan && (
-                      <p className="text-slate-700 leading-relaxed">
-                        <strong>Plan de Acción:</strong> {evalData.actionPlan}
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Signature Section */}
-      <div className="pt-8 border-t border-slate-300 grid grid-cols-2 gap-12 text-center text-xs">
-        <div>
-          <div className="h-12 border-b border-slate-400 mb-2"></div>
-          <span className="font-bold text-slate-900 block">{programInfo.evaluatorName}</span>
-          <span className="text-slate-500 block">{programInfo.evaluatorRole}</span>
-          <span className="text-[10px] text-slate-400">UNIPAZ</span>
-        </div>
-
-        <div>
-          <div className="h-12 border-b border-slate-400 mb-2"></div>
-          <span className="font-bold text-slate-900 block">Dirección de Calidad Institucional</span>
-          <span className="text-slate-500 block">Comité SIAC UNIPAZ</span>
-          <span className="text-[10px] text-slate-400">Barrancabermeja, Santander</span>
-        </div>
       </div>
     </div>
   );

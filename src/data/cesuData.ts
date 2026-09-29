@@ -75,7 +75,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 5,
         factorId: 2,
         code: 'C05',
-        title: 'Estrategias pedagógicas para el fortalecimiento de la autonomía y el trabajo colaborativo',
+        title: 'Estrategias pedagógicas para el fortalecimiento de la autonomía y el trabajo colaborativo con responsabilidad social',
         description: 'Desarrollo de capacidades para el trabajo autónomo, el aprendizaje colaborativo y la responsabilidad social en entornos participativos.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -89,7 +89,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 6,
         factorId: 2,
         code: 'C06',
-        title: 'Políticas académicas, cultura de paz, antirracismo e inclusión',
+        title: 'Políticas académicas y normativas en el proceso formativo en procura de una cultura de paz y tolerancia, el antirracismo, la perspectiva de género y la atención a poblaciones diversas, entre otros',
         description: 'Divulgación y aplicación del reglamento estudiantil, régimen disciplinario, cultura de paz, antirracismo, perspectiva de género y atención a poblaciones diversas.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -103,7 +103,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 7,
         factorId: 2,
         code: 'C07',
-        title: 'Estímulos y apoyos para estudiantes, diversidad e inclusión',
+        title: 'Estímulos y apoyos para todos los estudiantes y en atención a la diversidad, el pluralismo y la inclusión',
         description: 'Otorgamiento de becas, auxilios socioeconómicos, monitorías, estímulos al rendimiento académico destacado y apoyos para la diversidad.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -125,7 +125,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 8,
         factorId: 3,
         code: 'C08',
-        title: 'Selección, vinculación y permanencia de profesores',
+        title: 'Resultados de los procesos de selección, vinculación y permanencia de los profesores en el mejoramiento del programa',
         description: 'Criterios transparentes de selección, méritos académicos, vinculación idónea y permanencia profesoral para el mejoramiento del programa.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -153,7 +153,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 10,
         factorId: 3,
         code: 'C10',
-        title: 'Planta profesoral para materializar el proyecto educativo',
+        title: 'Planta profesoral para materializar el proyecto educativo del programa',
         description: 'Suficiencia en cantidad, calidad, nivel de posgrado (doctorado, maestría) y dedicación de la planta profesoral para cubrir las necesidades formativas.',
         defaultWeight: 10,
         defaultEvidences: [
@@ -167,7 +167,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 11,
         factorId: 3,
         code: 'C11',
-        title: 'Capacidades, procesos y resultados del desarrollo profesoral',
+        title: 'Capacidades, procesos, y resultados, del desarrollo profesoral del programa en coherencia con el proyecto educativo',
         description: 'Planes de capacitación pedagógica, actualización en TICs, formación avanzada y resultados del perfeccionamiento docente.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -181,7 +181,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 12,
         factorId: 3,
         code: 'C12',
-        title: 'Coherencia entre estímulos a la trayectoria e incentivos',
+        title: 'Coherencia entre los estímulos a la trayectoria de los profesores del programa y el proyecto educativo',
         description: 'Políticas de estímulos e incentivos económicos o académicos alineados con los logros formativos, la investigación y la proyección social.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -195,7 +195,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 13,
         factorId: 3,
         code: 'C13',
-        title: 'Producción, pertinencia e impacto de material docente',
+        title: 'Producción, pertinencia, utilización e impacto de material docente',
         description: 'Elaboración de guías de laboratorio, libros de texto, módulos de aprendizaje, recursos multimedia y material educativo propio.',
         defaultWeight: 7,
         defaultEvidences: [
@@ -209,7 +209,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 14,
         factorId: 3,
         code: 'C14',
-        title: 'Evaluación integral de profesores y sus efectos',
+        title: 'Evaluación integral de profesores y sus efectos en el mejoramiento del programa',
         description: 'Sistema integral y periódico de evaluación del desempeño profesoral (heteroevaluación, autoevaluación y coevaluación) y planes de mejora.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -231,7 +231,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 15,
         factorId: 4,
         code: 'C15',
-        title: 'Seguimiento de egresados, caracterización y aportes al programa',
+        title: 'Seguimiento de los egresados, su caracterización y aportes en el mejoramiento del programa',
         description: 'Mantenimiento de bases de datos, caracterización de la inserción laboral y participación de los egresados en el mejoramiento curricular.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -245,7 +245,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 16,
         factorId: 4,
         code: 'C16',
-        title: 'Impacto y reconocimientos obtenidos por los egresados',
+        title: 'Impacto y reconocimientos obtenidos por los egresados en el medio social y el ámbito académico',
         description: 'Desempeño destacado de los graduados en el sector productivo, público, social o científico a nivel regional, nacional e internacional.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -267,7 +267,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 17,
         factorId: 5,
         code: 'C17',
-        title: 'Evaluación de la gestión curricular, flexibilidad e interdisciplinariedad',
+        title: 'Evaluación de la gestión curricular y sus efectos en la mejora del programa desde una perspectiva de integralidad, flexibilidad e interacción de las disciplinas',
         description: 'Estructura curricular dinámica, actualización de planes de estudio, flexibilidad en rutas formativas e interacción disciplinar.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -281,7 +281,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 18,
         factorId: 5,
         code: 'C18',
-        title: 'Coherencia de las estrategias pedagógicas con el PEP',
+        title: 'Coherencia de las estrategias pedagógicas con el proyecto educativo del programa académico y las características de la comunidad de estudiantes',
         description: 'Alineación entre el modelo pedagógico institucional, las estrategias didácticas aplicadas en las aulas y el perfil de los estudiantes.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -295,7 +295,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 19,
         factorId: 5,
         code: 'C19',
-        title: 'Sistema de evaluación de estudiantes y dinámicas del contexto',
+        title: 'Sistema de evaluación de estudiantes en coherencia con las transformaciones en las teorías y métodos de aprendizaje, las dinámicas del contexto y las declaraciones del programa',
         description: 'Criterios claros, transparentes y diversos para evaluar el aprendizaje continuo de los estudiantes en coherencia con los avances pedagógicos.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -309,7 +309,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 20,
         factorId: 5,
         code: 'C20',
-        title: 'Aportes del sistema de evaluación al mejoramiento curricular',
+        title: 'Aportes del sistema de evaluación de los procesos y resultados académicos al mejoramiento curricular del programa',
         description: 'Uso de los resultados de las evaluaciones académicas y pruebas de Estado (Saber Pro) para realimentar el plan de estudios.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -323,7 +323,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 21,
         factorId: 5,
         code: 'C21',
-        title: 'Coherencia entre competencias, capacidades y resultados de aprendizaje',
+        title: 'Coherencia entre las competencias, capacidades, habilidades y/o destrezas, los procesos y resultados académicos previstos y demás aspectos curriculares definidos en el proyecto educativo del programa académico',
         description: 'Articulación declarada y verificable entre los resultados de aprendizaje esperados (RAE), las competencias del perfil de egreso y las asignaturas.',
         defaultWeight: 10,
         defaultEvidences: [
@@ -345,7 +345,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 22,
         factorId: 6,
         code: 'C22',
-        title: 'Impacto de las políticas y estrategias de permanencia y graduación',
+        title: 'Impacto de las políticas y estrategias implementadas para la permanencia y la graduación',
         description: 'Efectividad del conjunto de acciones institucionales para reducir las tasas de deserción y favorecer la culminación de estudios en el tiempo previsto.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -359,7 +359,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 23,
         factorId: 6,
         code: 'C23',
-        title: 'Caracterización y atención a estudiantes en riesgo de deserción',
+        title: 'Caracterización y atención de estudiantes a través de los sistemas, estrategias y programas dispuestos para tal fin',
         description: 'Identificación temprana de vulnerabilidades académicas, socioeconómicas o emocionales y atención personalizada.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -373,7 +373,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 24,
         factorId: 6,
         code: 'C24',
-        title: 'Evolución de los ajustes curriculares resultantes de la permanencia',
+        title: 'Evolución de los ajustes a los aspectos curriculares y pedagógicos como resultado de los programas de permanencia y graduación',
         description: 'Modificaciones en prerequisitos, intensidad horaria, nivelatorios y metodología derivados del análisis de las materias de mayor pérdida.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -387,7 +387,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 25,
         factorId: 6,
         code: 'C25',
-        title: 'Mecanismos de selección, reducción de deserción y graduación oportuna',
+        title: 'Contribución de los mecanismos de selección a la reducción de la deserción y la graduación oportuna',
         description: 'Contribución del proceso de admisión e inducción a la reducción de la deserción temprana y facilitación de modalidades de grado.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -409,7 +409,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 26,
         factorId: 7,
         code: 'C26',
-        title: 'Inserción del programa en contextos locales, regionales e internacionales',
+        title: 'Inserción del programa en contextos académicos locales, regionales, nacionales e internacionales',
         description: 'Relaciones formales del programa con redes académicas, gremiales y comunitarias del Magdalena Medio, Colombia y el exterior.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -423,7 +423,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 27,
         factorId: 7,
         code: 'C27',
-        title: 'Resultados y cooperación de profesores y estudiantes con comunidades',
+        title: 'Resultados y logros de las relaciones y de la cooperación de profesores y estudiantes con comunidades locales, regionales, nacionales y extranjeras y sus efectos en el posicionamiento del programa',
         description: 'Logros concretos de proyectos colaborativos con comunidades rurales, urbanas, industrias y entidades del sector público.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -437,7 +437,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 28,
         factorId: 7,
         code: 'C28',
-        title: 'Efectos de políticas para el desarrollo de habilidades en otras lenguas',
+        title: 'Efectos de las políticas para el desarrollo de habilidades comunicativas en una o varias lenguas en coherencia con el proyecto educativo del programa académico',
         description: 'Fomento del bilingüismo (inglés/otras lenguas) para la lectura científica, comunicación y movilidad internacional de la comunidad.',
         defaultWeight: 7,
         defaultEvidences: [
@@ -451,7 +451,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 29,
         factorId: 7,
         code: 'C29',
-        title: 'Impacto y aportes de la proyección e interacción social',
+        title: 'Impacto y aportes de la proyección e interacción social en diferentes contextos',
         description: 'Transferencia del conocimiento universitario para la solución de problemáticas sociales, ambientales y productivas del territorio.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -473,7 +473,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 30,
         factorId: 8,
         code: 'C30',
-        title: 'Capacidades y procesos para la consolidación de la investigación y creación',
+        title: 'Capacidades y procesos para la consolidación de la investigación, el desarrollo tecnológico, la innovación, la creación e investigación creación artística y cultural en el programa académico',
         description: 'Infraestructura, presupuesto, políticas e incentivos institucionales para fortalecer los grupos de investigación y la investigación-creación.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -487,7 +487,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 31,
         factorId: 8,
         code: 'C31',
-        title: 'Resultados, logros e impactos de la investigación e innovación',
+        title: 'Identificación de los resultados, logros e impactos de la investigación, el desarrollo tecnológico, la innovación, la creación e investigación creación artística y cultural en los diferentes contextos del programa',
         description: 'Producción de artículos científicos indexados, patentes, software, registros de diseño, obras artísticas o innovaciones sociales.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -501,7 +501,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 32,
         factorId: 8,
         code: 'C32',
-        title: 'Coherencia de las líneas de investigación/creación con el PEP',
+        title: 'Coherencia de las líneas de investigación y/o creación y resultados con el proyecto educativo del programa académico',
         description: 'Alineación de las líneas de investigación declaradas con el perfil profesional del programa y la vocación territorial.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -515,7 +515,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 33,
         factorId: 8,
         code: 'C33',
-        title: 'Resultados de la formación para la investigación y la creación',
+        title: 'Resultados de la formación para la investigación, desarrollo tecnológico, la innovación y la creación',
         description: 'Fomento del espíritu crítico e investigativo mediante semilleros de investigación, jóvenes investigadores y asignaturas de metodología.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -529,7 +529,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 34,
         factorId: 8,
         code: 'C34',
-        title: 'Demostración del uso de resultados investigativos en el mejoramiento del programa',
+        title: 'Demostración del uso de los resultados de investigación, el desarrollo tecnológico, la innovación y/o la creación e investigación-creación artística y cultural en el mejoramiento del programa',
         description: 'Inclusión de los hallazgos y publicaciones investigativas docentes en los contenidos de las asignaturas y enriquecimiento del aula.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -543,7 +543,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 35,
         factorId: 8,
         code: 'C35',
-        title: 'Impacto de la investigación en el contexto del programa',
+        title: 'Impacto de la investigación y/o la investigación-creación en el contexto en el que se ofrece el programa',
         description: 'Solución de problemas concretos de la industria, el medio ambiente, la salud o la sociedad en Barrancabermeja y la región.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -565,7 +565,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 36,
         factorId: 9,
         code: 'C36',
-        title: 'Evolución y evaluación del bienestar en diversidad, inclusión y pluralismo',
+        title: 'Evolución y evaluación de los programas y servicios que desarrollan las políticas de bienestar en el marco del pluralismo, la diversidad y la inclusión',
         description: 'Disponibilidad y acceso equitativo a los servicios de bienestar institucional para estudiantes, profesores y administrativos sin discriminación.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -579,7 +579,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 37,
         factorId: 9,
         code: 'C37',
-        title: 'Incidencia del bienestar en la formación integral y calidad de vida',
+        title: 'Incidencia de los programas, planes y actividades de bienestar en la formación integral y en la calidad de vida de la comunidad de estudiantes',
         description: 'Aporte de las actividades deportivas, culturales, médicas y psicológicas al desarrollo humano y mitigación del estrés académico.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -593,7 +593,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 38,
         factorId: 9,
         code: 'C38',
-        title: 'Adaptación de infraestructura y servicios de bienestar',
+        title: 'Adaptación y evaluación de los programas, actividades e infraestructura de bienestar a las condiciones particulares que determinan la oferta del programa',
         description: 'Espacios físicos (canchas, cafeterías, zonas verdes) y recursos tecnológicos adecuados para el desarrollo de actividades de bienestar.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -615,7 +615,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 39,
         factorId: 10,
         code: 'C39',
-        title: 'Evolución y evaluación de medios educativos y ambientes de aprendizaje',
+        title: 'Evolución y evaluación de los medios educativos que soportan los ambientes de aprendizaje del programa',
         description: 'Calidad, actualización y pertinencia de los recursos mediáticos, laboratorios y plataformas que soportan la enseñanza.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -629,7 +629,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 40,
         factorId: 10,
         code: 'C40',
-        title: 'Aporte de los medios educativos en los resultados académicos',
+        title: 'Aporte de los medios educativos en los procesos y resultados académicos de los estudiantes atendiendo su contexto y a los principios rectores de la alta calidad',
         description: 'Uso efectivo de las tecnologías y laboratorios para la consecución de las competencias y resultados de aprendizaje esperados (RAE).',
         defaultWeight: 9,
         defaultEvidences: [
@@ -643,7 +643,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 41,
         factorId: 10,
         code: 'C41',
-        title: 'Evolución de la suficiencia de recursos bibliográficos e información',
+        title: 'Evolución de la suficiencia y calidad de los medios educativos, recursos bibliográficos y de información en coherencia con las dinámicas propias del programa y su mejoramiento',
         description: 'Colección bibliográfica física en biblioteca, suscripciones a bases de datos científicas digitales y préstamos.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -657,7 +657,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 42,
         factorId: 10,
         code: 'C42',
-        title: 'Infraestructura física, tecnológica y sostenibilidad en el campus',
+        title: 'Evolución, suficiencia y evaluación de los recursos de infraestructura física y tecnológica en coherencia con el proyecto educativo del programa académico',
         description: 'Capacidad de aulas, condiciones de iluminación, ventilación, conectividad Wi-Fi, accesibilidad y mantenimiento general en el campus Santa Rosa.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -679,7 +679,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 43,
         factorId: 11,
         code: 'C43',
-        title: 'Identificación de logros y resultados de la gestión del programa',
+        title: 'Identificación de los logros y resultados de la organización y la gestión del programa',
         description: 'Efectividad de la dirección académica, comité de programa y procesos administrativos para soportar las labores académicas.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -693,7 +693,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 44,
         factorId: 11,
         code: 'C44',
-        title: 'Evolución y evaluación de la sostenibilidad y capacidades',
+        title: 'Evolución y evaluación de la sostenibilidad, los recursos y las capacidades del programa en coherencia con el proyecto educativo',
         description: 'Proyección estratégica del programa a mediano y largo plazo garantizando sus capacidades técnicas y operativas.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -707,7 +707,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 45,
         factorId: 11,
         code: 'C45',
-        title: 'Liderazgo en la dirección y gestión académica',
+        title: 'Liderazgo en la dirección y gestión',
         description: 'Idoneidad, perfil calificado y visión estratégica de los directivos para guiar los procesos de acreditación y calidad.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -721,7 +721,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 46,
         factorId: 11,
         code: 'C46',
-        title: 'Sistemas de comunicación e información actualizados y accesibles',
+        title: 'Sistemas de comunicación e información actualizados, accesibles y oportunos en el mejoramiento del programa',
         description: 'Plataformas tecnológicas de información para el registro de notas, trámites académicos, portal web e interacción comunitaria.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -735,7 +735,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 47,
         factorId: 11,
         code: 'C47',
-        title: 'Consolidación de recursos y capacidades coherentes con la evolución',
+        title: 'Consolidación de los recursos y capacidades coherentes con la evolución del programa',
         description: 'Inversión continua en la modernización de los equipos, renovación tecnológica e incremento del talento humano.',
         defaultWeight: 8,
         defaultEvidences: [
@@ -771,7 +771,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 49,
         factorId: 12,
         code: 'C49',
-        title: 'Reflexión y participación en gestión, autoevaluación y autorregulación',
+        title: 'Reflexión y participación de la comunidad en los procesos de gestión, autoevaluación, autorregulación y mejoramiento permanente del programa académico',
         description: 'Participación activa y representativa de docentes, estudiantes, egresados y administrativos en el proceso permanente de autoevaluación.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -785,7 +785,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 50,
         factorId: 12,
         code: 'C50',
-        title: 'Consolidación de información y datos de alta calidad en el periodo',
+        title: 'Consolidación de la información y los datos que dan cuenta de los resultados, logros e impactos de la alta calidad del programa en el periodo de observación correspondiente a la autoevaluación',
         description: 'Sistematización rigurosa de evidencias, indicadores y estadísticas correspondientes a los 5 años del periodo de observación.',
         defaultWeight: 9,
         defaultEvidences: [
@@ -799,7 +799,7 @@ export const CESU_FACTORS: FactorDef[] = [
         id: 51,
         factorId: 12,
         code: 'C51',
-        title: 'Resultados e impactos de la cultura de la calidad y planes de mejora',
+        title: 'Identificación de los principales resultados, logros e impactos de la cultura de la calidad en el mejoramiento del programa',
         description: 'Seguimiento, ejecución y evidencia del cumplimiento de los compromisos derivados de planes de mejoramiento previos.',
         defaultWeight: 10,
         defaultEvidences: [

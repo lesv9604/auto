@@ -15,6 +15,9 @@ export interface CharacteristicEvaluation {
   actionPlan: string;
   evidences: EvidenceItem[];
   survey?: SurveySummary; // Resultado de encuestas (solo lectura)
+  cnaLevel?: 'NC' | 'CI' | 'CA' | 'CP'; // Apreciación del Comité (escala CNA)
+  hallazgos?: string;                   // Apreciaciones y hallazgos
+  adjuntos?: { id: string; label: string; url: string }[]; // Enlaces a documentos soporte
 }
 
 export interface SurveySummary {

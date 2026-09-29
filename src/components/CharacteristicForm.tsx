@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CharacteristicDef, CharacteristicEvaluation, FactorDef, SurveySummary } from '../types';
+import { CnaAppraisal } from './CnaAppraisal';
 import { getStatusBadgeInfo, getAutoWeightLabel } from '../utils/calc';
 import {
   CheckSquare, Square, Plus, Trash2, ArrowLeft, ArrowRight,
@@ -267,6 +268,9 @@ export const CharacteristicForm: React.FC<CharacteristicFormProps> = ({
             />
           </div>
         </div>
+
+        {/* Aspectos por evaluar y apreciación del Comité (escala CNA) */}
+        <CnaAppraisal code={characteristic.code} evaluation={evaluation} onUpdate={onUpdateEvaluation} />
 
         {/* Checklist de evidencias */}
         <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 border-l-4 border-l-slate-700">

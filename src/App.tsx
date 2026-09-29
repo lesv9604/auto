@@ -6,6 +6,7 @@ import {
   createBlankEvaluationData,
 } from './data/unipazPrograms';
 import { calculateDiagnostics } from './utils/calc';
+import { applySurveyToEvaluations, SurveyPayload } from './utils/surveys';
 import { Header } from './components/Header';
 import { FactorNav } from './components/FactorNav';
 import { CharacteristicForm } from './components/CharacteristicForm';
@@ -86,6 +87,9 @@ export default function App() {
   const [activeFactorId, setActiveFactorId] = useState<number>(1);
   const [activeCharacteristicId, setActiveCharacteristicId] = useState<number>(1);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [syncState, setSyncState] = useState<{ loading: boolean; msg: string | null; error: boolean }>(
+    { loading: false, msg: null, error: false }
+  );
 
   // ── Persistir cambios en evaluaciones ──
   useEffect(() => {
@@ -231,6 +235,25 @@ export default function App() {
     }
   };
 
+  // ── Actualizar valoraciones desde las encuestas (Google Sheets vía /api/encuestas) ──
+  const handleSyncSurveys = async () => {
+    setSyncState({ loading: true, msg: null, error: false });
+    try {
+      const qs = new URLSearchParams({ escuela: programInfo.faculty, programa: programInfo.programName });
+      const res = await fetch(`/api/encuestas?${qs}`);
+      const data: SurveyPayload = await res.json();
+      if (!res.ok || data.error) throw new Error(data.error || `Error ${res.status}`);
+
+      setEvaluations((prev) => applySurveyToEvaluations(data, prev!));
+      const total = Object.values(data.actores).reduce((s, a) => s + a.n, 0);
+      const avisos = data.advertencias?.length ? ` · ${data.advertencias.length} advertencia(s)` : '';
+      setSyncState({ loading: false, msg: `${total} encuestados en total${avisos}`, error: false });
+      if (data.advertencias?.length) console.warn('Encuestas:', data.advertencias);
+    } catch (err) {
+      setSyncState({ loading: false, msg: (err as Error).message, error: true });
+    }
+  };
+
   const handleImportData = (
     importedInfo: ProgramInfo,
     importedEvals: Record<number, CharacteristicEvaluation>
@@ -262,12 +285,26 @@ export default function App() {
           <span className="text-emerald-300 hidden sm:inline">·</span>
           <span className="text-emerald-200 text-xs hidden sm:inline truncate">{programInfo.faculty}</span>
         </div>
+        <div className="flex items-center gap-2 shrink-0 ml-4">
+          {syncState.msg && (
+            <span className={`text-[11px] hidden md:inline ${syncState.error ? 'text-amber-200' : 'text-emerald-100'}`}>
+              {syncState.error ? '⚠ ' : '✓ '}{syncState.msg}
+            </span>
+          )}
+          <button
+            onClick={handleSyncSurveys}
+            disabled={syncState.loading}
+            className="text-xs bg-white text-emerald-800 font-semibold hover:bg-emerald-50 disabled:opacity-60 px-3 py-1 rounded-full transition-colors"
+          >
+            {syncState.loading ? 'Consultando…' : '⟳ Actualizar desde encuestas'}
+          </button>
         <button
           onClick={handleBackToSelector}
-          className="shrink-0 ml-4 text-xs bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full transition-colors"
+          className="shrink-0 text-xs bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full transition-colors"
         >
           ← Cambiar programa
         </button>
+        </div>
       </div>
 
       {/* Main */}

@@ -93,3 +93,8 @@
 .rpt a { color: #273475; text-decoration: underline; }
 .rpt-url { color: #6b7280; font-size: 7.5pt; word-break: break-all; }
 .rpt-url-cell { word-break: break-all; }
+.rpt-ruta { background: #EEF0F8; border-left: 3px solid #273475; padding: 2.5mm 3.5mm; margin-bottom: 3mm; font-size: 9.5pt; break-inside: avoid; }
+.rpt-ruta-t { font-weight: 700; font-size: 9pt; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 1.5mm !important; }
+.rpt-ruta-steps { display: flex; flex-wrap: wrap; gap: 1mm; margin-bottom: 2mm; }
+.rpt-step { position: relative; background: #273475; color: #fff; font-size: 8pt; font-weight: 700; padding: 1mm 4mm 1mm 3mm; clip-path: polygon(0 0, calc(100% - 2mm) 0, 100% 50%, calc(100% - 2mm) 100%, 0 100%, 2mm 50%); }
+.rpt-step-0 { background: #B42318; clip-path: polygon(0 0, calc(100% - 2mm) 0, 100% 50%, calc(100% - 2mm) 100%, 0 100%); }

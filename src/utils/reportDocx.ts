@@ -12,7 +12,7 @@ import { CESU_FACTORS } from '../data/cesuData';
 import { INSTITUCION } from '../data/institution';
 import { ESCALA_CNA, CESU_ASPECTS } from '../data/cesuAspects';
 import { trazabilidad, enlacesDe } from './process';
-import { analisisPlan, filasPlan, fmtFechaCorta, hallazgosDe, planesDe } from './plan';
+import { RUTA_PLAN, analisisPlan, filasPlan, fmtFechaCorta, hallazgosDe, planesDe } from './plan';
 
 const AZUL = '273475', VERDE = '00963F', GRIS = '4B5563', FONDO = 'EEF0F8';
 const FUENTE = 'Palatino Linotype';
@@ -181,6 +181,25 @@ export async function generarInformeDocx(
   });
 
   s1.push(h('5. Plan de mejoramiento — análisis'));
+  const caja = { top: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' }, bottom: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' }, right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' }, left: { style: BorderStyle.SINGLE, size: 18, color: AZUL } };
+  s1.push(new Table({
+    width: { size: 9360, type: WidthType.DXA }, columnWidths: [9360],
+    rows: [new TableRow({ children: [new TableCell({
+      width: { size: 9360, type: WidthType.DXA }, borders: caja, shading: { type: ShadingType.CLEAR, fill: FONDO, color: 'auto' },
+      margins: { top: 100, bottom: 100, left: 200, right: 200 },
+      children: [
+        new Paragraph({ spacing: { after: 60 }, children: [t('RUTA METODOLÓGICA PARA CADA BRECHA', { bold: true, color: AZUL, size: 17 })] }),
+        new Paragraph({ spacing: { after: 80 }, children: [
+          t('Brecha', { bold: true, color: 'B42318', size: 18 }),
+          ...RUTA_PLAN.flatMap((r) => [t('  →  ', { color: GRIS, size: 18 }), t(r, { bold: true, color: AZUL, size: 18 })]),
+          t('  →  ', { color: GRIS, size: 18 }), t('Monitoreo y cierre (SIAC)', { bold: true, color: VERDE, size: 18 }),
+        ] }),
+        new Paragraph({ children: [t('Para cada brecha en el plan de mejoramiento defina: ', { bold: true, size: 18 }),
+          t('línea base → indicador → meta → responsable → plazo, y monitoree el cierre desde el SIAC. Exporte la matriz a Excel para cruzarla con el repositorio de evidencias.', { size: 18 })] }),
+      ],
+    })] })],
+  }));
+  s1.push(new Paragraph({ spacing: { after: 80 }, children: [] }));
   analisis.forEach((x) => s1.push(p(x, { align: AlignmentType.JUSTIFIED })));
   s1.push(p([t('La matriz del plan de mejoramiento se presenta en la sección siguiente (hoja horizontal) y puede diligenciarse y actualizarse directamente en este documento.', { italics: true, color: GRIS })]));
 

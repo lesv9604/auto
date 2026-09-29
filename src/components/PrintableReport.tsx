@@ -2,7 +2,8 @@ import React, { useRef, useState } from 'react';
 import { CharacteristicEvaluation, ConsolidatedDiagnostics, ProgramInfo, SurveySummary } from '../types';
 import { CESU_FACTORS } from '../data/cesuData';
 import { INSTITUCION } from '../data/institution';
-import { ESCALA_CNA } from '../data/cesuAspects';
+import { ESCALA_CNA, CESU_ASPECTS } from '../data/cesuAspects';
+import { trazabilidad, enlacesDe } from '../utils/process';
 import { filasPlan, analisisPlan, hallazgosDe, planesDe, fmtFechaCorta, ESTADO_COLOR } from '../utils/plan';
 import { Printer, FileText } from 'lucide-react';
 import logo from '../assets/logo-unipaz.png';
@@ -12,6 +13,7 @@ interface PrintableReportProps {
   programInfo: ProgramInfo;
   diagnostics: ConsolidatedDiagnostics;
   evaluations: Record<number, CharacteristicEvaluation>;
+  onUpdateProgramInfo: (u: Partial<ProgramInfo>) => void;
 }
 
 const { azul, verde } = INSTITUCION.colores;
@@ -33,7 +35,8 @@ const fmtFecha = (iso: string) => {
   return isNaN(d.getTime()) ? iso : d.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
 };
 
-export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, diagnostics, evaluations }) => {
+export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, diagnostics, evaluations, onUpdateProgramInfo }) => {
+  const faltaResponsable = !programInfo.evaluatorName.trim();
   const chars = CESU_FACTORS.flatMap((f) => f.characteristics.map((c) => ({ ...c, factor: f, ev: evaluations[c.id] })));
   const evaluadas = chars.filter((c) => c.ev && c.ev.rating > 0).sort((a, b) => b.ev.rating - a.ev.rating);
   const fortalezas = evaluadas.slice(0, 5);
@@ -52,6 +55,7 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
   const [generando, setGenerando] = useState(false);
   const nombreArchivo = `Informe_Autoevaluacion_${programInfo.programName}_${programInfo.period}`.replace(/[^\p{L}\p{N}]+/gu, '_');
   const handleDocx = async () => {
+    if (faltaResponsable) return;
     setGenerando(true);
     try {
       const { generarInformeDocx } = await import('../utils/reportDocx');
@@ -68,7 +72,7 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
     }
   };
   const handlePrint = () => {
-    if (!reportRef.current) return;
+    if (!reportRef.current || faltaResponsable) return;
     const nombre = `Informe_Autoevaluacion_${programInfo.programName}_${programInfo.period}`.replace(/[^\p{L}\p{N}]+/gu, '_');
     printReport(reportRef.current, nombre, [
       `${INSTITUCION.sigla} · ${INSTITUCION.nombre} · ${INSTITUCION.ciudad} · ${INSTITUCION.web}`,
@@ -76,24 +80,42 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
     ]);
   };
   const filas = filasPlan(evaluations);
+  const traza = trazabilidad(programInfo, evaluations);
+  const todosEnlaces = CESU_FACTORS.flatMap((f) => f.characteristics.flatMap((c) => enlacesDe(evaluations[c.id], c.code)));
   const analisis = analisisPlan(evaluations, filas);
   const hoy = new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
     <div className="rpt-wrap">
+      {faltaResponsable && (
+        <div className="max-w-[210mm] mx-auto mb-4 p-4 rounded-xl border border-rose-300 bg-rose-50 print:hidden">
+          <label className="block text-xs font-bold uppercase tracking-wider text-rose-800 mb-1.5">
+            Evaluador / Comité responsable del informe <span aria-hidden>*</span>
+          </label>
+          <input
+            autoFocus
+            value={programInfo.evaluatorName}
+            onChange={(e) => onUpdateProgramInfo({ evaluatorName: e.target.value })}
+            placeholder="Ej.: Comité de Autoevaluación del Programa de Ingeniería Informática"
+            className="w-full p-2 text-sm bg-white border border-rose-300 rounded focus:ring-1 focus:ring-rose-500 focus:outline-none"
+          />
+          <p className="text-[11px] text-rose-700 mt-1">Campo obligatorio: sin él no se puede imprimir ni descargar el informe.</p>
+        </div>
+      )}
+
       {/* Barra de acciones (solo pantalla) */}
       <div className="flex justify-between items-center mb-4 print:hidden max-w-[210mm] mx-auto">
         <p className="text-xs text-slate-500">
           Vista previa del informe. Use <b>Imprimir / Guardar como PDF</b> y elija tamaño <b>Carta</b>, márgenes <b>Predeterminados</b> y active <b>Gráficos de fondo</b>.
         </p>
         <div className="flex gap-2 shrink-0 ml-4">
-        <button onClick={handleDocx} disabled={generando}
+        <button onClick={handleDocx} disabled={generando || faltaResponsable}
           className="px-4 py-2 text-xs font-semibold rounded-lg flex items-center gap-2 border-2 bg-white disabled:opacity-60"
           style={{ borderColor: azul, color: azul }}>
           <FileText className="w-4 h-4" /> {generando ? 'Generando…' : 'Descargar Word (.docx)'}
         </button>
-        <button id="btn-imprimir-informe" onClick={handlePrint}
-          className="px-4 py-2 text-white text-xs font-semibold rounded-lg flex items-center gap-2"
+        <button id="btn-imprimir-informe" onClick={handlePrint} disabled={faltaResponsable}
+          className="px-4 py-2 text-white text-xs font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50"
           style={{ background: azul }}>
           <Printer className="w-4 h-4" /> Imprimir / Guardar como PDF
         </button>
@@ -175,9 +197,42 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
               )}
             </section>
 
+            {/* ── 2. Trazabilidad del proceso ─────────────────────── */}
+            <section className="rpt-sec">
+              <h2 style={{ color: azul, borderColor: verde }}>2. Trazabilidad del proceso de autoevaluación</h2>
+              <table className="rpt-table rpt-table-sm">
+                <thead><tr style={{ background: azul }}><th>Etapa</th><th className="c">Estado</th><th>Detalle</th></tr></thead>
+                <tbody>
+                  {traza.etapas.map((e) => (
+                    <tr key={e.etapa}>
+                      <td className="b">{e.etapa}</td>
+                      <td className="c"><span className="rpt-chip" style={{ color: e.estado === 'Completa' ? verde : e.estado === 'Parcial' ? '#B7791F' : '#B42318', borderColor: 'currentColor' }}>{e.estado}</span></td>
+                      <td>{e.detalle}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <h3 style={{ color: azul, marginTop: '4mm' }}>Seguimiento por característica</h3>
+              <table className="rpt-table rpt-table-xs">
+                <thead><tr style={{ background: azul }}>
+                  <th>Car.</th><th>Característica</th><th className="r">Peso</th><th className="r">Valor.</th><th className="c">CNA</th>
+                  <th className="c">Hallazgos</th><th className="c">Evid.</th><th className="c">Enlaces</th><th className="c">Acciones</th>
+                </tr></thead>
+                <tbody>
+                  {traza.filas.map((r) => (
+                    <tr key={r.codigo}>
+                      <td className="mono b">{r.codigo}</td><td>{r.titulo}</td><td className="r">{r.peso}</td><td className="r b">{r.valoracion}</td>
+                      <td className="c">{r.cna}</td><td className="c">{r.hallazgos ? '✓' : '—'}</td><td className="c">{r.evidencias}</td>
+                      <td className="c">{r.enlaces || '—'}</td><td className="c">{r.acciones || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+
             {/* ── 2. Consolidado por factor ───────────────────────── */}
             <section className="rpt-sec">
-              <h2 style={{ color: azul, borderColor: verde }}>2. Consolidado por factor</h2>
+              <h2 style={{ color: azul, borderColor: verde }}>3. Consolidado por factor</h2>
               <table className="rpt-table">
                 <thead>
                   <tr style={{ background: azul }}>
@@ -206,7 +261,7 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
             {/* ── 3. Fortalezas y oportunidades ───────────────────── */}
             {evaluadas.length > 0 && (
               <section className="rpt-sec rpt-avoid">
-                <h2 style={{ color: azul, borderColor: verde }}>3. Fortalezas y oportunidades de mejora</h2>
+                <h2 style={{ color: azul, borderColor: verde }}>4. Fortalezas y oportunidades de mejora</h2>
                 <div className="rpt-two">
                   {[['Características mejor valoradas', fortalezas, verde], ['Características con menor valoración', oportunidades, '#B42318']].map(
                     ([titulo, lista, color]) => (
@@ -226,7 +281,7 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
 
             {/* ── 4. Detalle por característica ───────────────────── */}
             <section className="rpt-sec">
-              <h2 style={{ color: azul, borderColor: verde }}>4. Detalle por característica</h2>
+              <h2 style={{ color: azul, borderColor: verde }}>5. Detalle por característica</h2>
               {CESU_FACTORS.map((factor) => (
                 <div key={factor.id} className="rpt-factor">
                   <h3 className="rpt-factor-t" style={{ background: azul }}>{factor.code}. {factor.name}</h3>
@@ -248,17 +303,33 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
                             Percepción (Likert 1–4): {actores.map(([a, d]) => `${a} ${d.likert.toFixed(2)} (n=${d.n})`).join(' · ')}
                           </p>
                         )}
+                        <p className="rpt-muted">
+                          Ponderación: {(100 / factor.characteristics.length).toFixed(1)} % del factor {factor.code} · Aporte al factor: {ev.rating > 0 ? (ev.rating / factor.characteristics.length).toFixed(2) : '—'}
+                        </p>
+                        {CESU_ASPECTS[char.code] && (
+                          <div className="rpt-aspects">
+                            <p><b>Qué se evalúa:</b> {CESU_ASPECTS[char.code].descripcion}</p>
+                            <ul>
+                              {CESU_ASPECTS[char.code].aspectos.map((a) => <li key={a.n}><b>A{a.n}.</b> {a.texto}</li>)}
+                            </ul>
+                          </div>
+                        )}
                         {ev.cnaLevel && (() => {
                           const n = ESCALA_CNA.find((x) => x.code === ev.cnaLevel)!;
                           return <p><b>Apreciación del Comité (escala CNA):</b> <span style={{ color: n.color, fontWeight: 700 }}>{n.code} · {n.label}</span></p>;
                         })()}
                         {hallazgosDe(ev) && <p style={{ whiteSpace: 'pre-line' }}><b>Apreciaciones y hallazgos:</b> {hallazgosDe(ev)}</p>}
-                        {planesDe(ev).length > 0 && <p className="rpt-muted">Acciones de mejora: {planesDe(ev).length} (ver sección 5).</p>}
+                        {planesDe(ev).length > 0 && <p className="rpt-muted">Acciones de mejora: {planesDe(ev).length} (ver sección 6).</p>}
                         {ev.evidences.length > 0 && <p className="rpt-muted">Evidencias verificadas: {evid} de {ev.evidences.length}</p>}
-                        {ev.adjuntos && ev.adjuntos.length > 0 && (
-                          <p className="rpt-muted">Documentos soporte: {ev.adjuntos.map((d, i) => (
-                            <span key={d.id}>{i > 0 && ' · '}<a href={d.url}>{d.label}</a></span>
-                          ))}</p>
+                        {enlacesDe(ev).length > 0 && (
+                          <div className="rpt-links">
+                            <b>Enlaces:</b>
+                            <ul>
+                              {enlacesDe(ev).map((l, k) => (
+                                <li key={k}>{l.tipo}: <a href={l.url} target="_blank" rel="noopener noreferrer">{l.label}</a> <span className="rpt-url">{l.url}</span></li>
+                              ))}
+                            </ul>
+                          </div>
                         )}
                       </div>
                     );
@@ -269,12 +340,12 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
 
             {/* ── 5. Plan de mejoramiento ─────────────────────────── */}
             <section className="rpt-sec">
-              <h2 style={{ color: azul, borderColor: verde }}>5. Plan de mejoramiento</h2>
+              <h2 style={{ color: azul, borderColor: verde }}>6. Plan de mejoramiento</h2>
               {analisis.map((t, i) => <p key={i}>{t}</p>)}
 
               {filas.length > 0 && (
                 <>
-                  <h3 style={{ color: azul, marginTop: '4mm' }}>5.1 Matriz resumen</h3>
+                  <h3 style={{ color: azul, marginTop: '4mm' }}>6.1 Matriz resumen</h3>
                   <table className="rpt-table rpt-table-sm">
                     <thead>
                       <tr style={{ background: azul }}>
@@ -298,7 +369,7 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
                     </tbody>
                   </table>
 
-                  <h3 style={{ color: azul, marginTop: '5mm' }}>5.2 Fichas de las acciones de mejora</h3>
+                  <h3 style={{ color: azul, marginTop: '5mm' }}>6.2 Fichas de las acciones de mejora</h3>
                   {filas.map((r, i) => (
                     <table key={r.p.id} className="rpt-ficha">
                       <tbody>
@@ -323,9 +394,25 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
               )}
             </section>
 
+            {/* ── 7. Enlaces y documentos soporte ────────────────── */}
+            <section className="rpt-sec">
+              <h2 style={{ color: azul, borderColor: verde }}>7. Enlaces y documentos soporte</h2>
+              {todosEnlaces.length ? (
+                <table className="rpt-table rpt-table-sm">
+                  <thead><tr style={{ background: azul }}><th>Car.</th><th>Tipo</th><th>Documento</th><th>Enlace</th></tr></thead>
+                  <tbody>
+                    {todosEnlaces.map((l, k) => (
+                      <tr key={k}><td className="mono b">{l.codigo}</td><td>{l.tipo}</td><td>{l.label}</td>
+                        <td className="rpt-url-cell"><a href={l.url} target="_blank" rel="noopener noreferrer">{l.url}</a></td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : <p className="rpt-muted">No se registraron enlaces a documentos soporte.</p>}
+            </section>
+
             {/* ── 6. Nota metodológica ────────────────────────────── */}
             <section className="rpt-sec rpt-avoid">
-              <h2 style={{ color: azul, borderColor: verde }}>6. Nota metodológica</h2>
+              <h2 style={{ color: azul, borderColor: verde }}>8. Nota metodológica</h2>
               <p>
                 Las valoraciones provienen de encuestas de percepción aplicadas a los actores del programa con escala:
                 Muy favorable (4), Favorable (3), Desfavorable (2) y Muy desfavorable (1); «No aplica» se excluye del cálculo.

@@ -86,3 +86,10 @@
 .rpt-ficha tr:first-child th { color: #fff; font-size: 9pt; }
 .rpt-ficha th { background: #EEF0F8; width: 24%; font-weight: 700; color: #273475; }
 .rpt-sec h3 { break-after: avoid; }
+.rpt-table-xs { font-size: 7.5pt; } .rpt-table-xs td, .rpt-table-xs th { padding: .8mm 1.5mm; }
+.rpt-aspects { background: #f8fafc; border-left: 2px solid #00963F; padding: 1.5mm 2.5mm; margin: 1mm 0 1.5mm; font-size: 8.5pt; }
+.rpt-aspects ul { margin: .5mm 0 0 3mm; } .rpt-aspects li { margin-bottom: .5mm; }
+.rpt-links { font-size: 8.5pt; } .rpt-links ul { margin-left: 3mm; }
+.rpt a { color: #273475; text-decoration: underline; }
+.rpt-url { color: #6b7280; font-size: 7.5pt; word-break: break-all; }
+.rpt-url-cell { word-break: break-all; }

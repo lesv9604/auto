@@ -5,12 +5,13 @@
  */
 import {
   AlignmentType, BorderStyle, Document, Footer, Header, ImageRun, Packer, PageNumber, PageOrientation,
-  Paragraph, ShadingType, Table, TableCell, TableRow, TextRun, WidthType, VerticalAlign, HeadingLevel,
+  Paragraph, ShadingType, Table, TableCell, TableRow, TextRun, WidthType, VerticalAlign, HeadingLevel, ExternalHyperlink,
 } from 'docx';
 import { CharacteristicEvaluation, ConsolidatedDiagnostics, ProgramInfo } from '../types';
 import { CESU_FACTORS } from '../data/cesuData';
 import { INSTITUCION } from '../data/institution';
-import { ESCALA_CNA } from '../data/cesuAspects';
+import { ESCALA_CNA, CESU_ASPECTS } from '../data/cesuAspects';
+import { trazabilidad, enlacesDe } from './process';
 import { analisisPlan, filasPlan, fmtFechaCorta, hallazgosDe, planesDe } from './plan';
 
 const AZUL = '273475', VERDE = '00963F', GRIS = '4B5563', FONDO = 'EEF0F8';
@@ -27,6 +28,9 @@ const h = (text: string, level: 1 | 2 = 1) =>
     spacing: { before: level === 1 ? 280 : 200, after: 120 },
     border: level === 1 ? { bottom: { style: BorderStyle.SINGLE, size: 8, color: VERDE, space: 2 } } : undefined,
   });
+
+const enlace = (texto: string, url: string, size = 16) =>
+  new ExternalHyperlink({ link: url, children: [new TextRun({ text: texto, style: 'Hyperlink', color: '1D4ED8', underline: {}, size, font: FUENTE })] });
 
 const borde = { style: BorderStyle.SINGLE, size: 4, color: 'CBD5E1' };
 const bordes = { top: borde, bottom: borde, left: borde, right: borde };
@@ -126,7 +130,7 @@ export async function generarInformeDocx(
   s1.push(tabla(['Dato', 'Valor'], [
     ['Periodo académico', programInfo.period],
     ['Fecha de emisión', fmtFechaCorta(programInfo.evaluationDate)],
-    ['Responsable', 'Equipo de autoevaluación del programa'],
+    ['Evaluador / Comité responsable', programInfo.evaluatorName],
     ['Sede', programInfo.campus],
     ['Referente', 'Acuerdo 01 de 2025 del CESU y Lineamientos y aspectos por evaluar (diciembre de 2025)'],
   ], [2800, 6560], 20));
@@ -137,36 +141,74 @@ export async function generarInformeDocx(
     `${diagnostics.overallCompliancePercentage} %`, `${diagnostics.totalEvaluated} / ${diagnostics.totalCharacteristics}`,
   ]], [2340, 2340, 2340, 2340], 20));
 
-  s1.push(h('2. Consolidado por factor'));
+  const traza = trazabilidad(programInfo, evaluations);
+  s1.push(h('2. Trazabilidad del proceso de autoevaluación'));
+  s1.push(tabla(['Etapa', 'Estado', 'Detalle'], traza.etapas.map((e) => [e.etapa, e.estado, e.detalle]), [2600, 1100, 5660], 17));
+  s1.push(h('Seguimiento por característica', 2));
+  s1.push(tabla(['Car.', 'Característica', 'Peso', 'Valor.', 'CNA', 'Hallazgos', 'Evid.', 'Enlaces', 'Acciones'],
+    traza.filas.map((r) => [r.codigo, r.titulo, r.peso, r.valoracion, r.cna, r.hallazgos ? 'Sí' : '—', r.evidencias, String(r.enlaces || '—'), String(r.acciones || '—')]),
+    [620, 3820, 700, 700, 560, 850, 700, 700, 710], 14));
+
+  s1.push(h('3. Consolidado por factor'));
   s1.push(tabla(['Factor', 'Nombre', 'Caract.', 'Valoración', 'Logro', 'Nivel'],
     diagnostics.factorSummaries.map((f) => [f.factorCode, f.factorName, `${f.evaluatedCount}/${f.characteristicsCount}`,
       f.averageRating > 0 ? f.averageRating.toFixed(2) : '—', `${f.compliancePercentage} %`, f.statusLevel]),
     [800, 4400, 900, 1100, 1000, 1160]));
 
-  s1.push(h('3. Detalle por característica'));
+  s1.push(h('4. Detalle por característica'));
   CESU_FACTORS.forEach((f) => {
     s1.push(h(`${f.code}. ${f.name}`, 2));
-    s1.push(tabla(['Característica', 'Valoración', 'Comité (CNA)', 'Apreciaciones y hallazgos'],
-      f.characteristics.map((c) => {
-        const ev = evaluations[c.id];
-        const cna = ESCALA_CNA.find((x) => x.code === ev?.cnaLevel);
-        return [`${c.code} ${c.title}`, ev && ev.rating > 0 ? `${ev.rating.toFixed(2)} (${nivelDe(ev.rating)})` : '—',
-          cna ? `${cna.code} · ${cna.label}` : 'Sin calificar',
-          (hallazgosDe(ev) || '—') + (planesDe(ev).length ? `\nAcciones de mejora: ${planesDe(ev).length}` : '')];
-      }), [2900, 1200, 1500, 3760], 16));
+    f.characteristics.forEach((c) => {
+      const ev = evaluations[c.id];
+      const cna = ESCALA_CNA.find((x) => x.code === ev?.cnaLevel);
+      const info = CESU_ASPECTS[c.code];
+      s1.push(new Paragraph({ keepNext: true, spacing: { before: 160, after: 60 }, children: [t(`${c.code} `, { bold: true, color: VERDE }), t(c.title, { bold: true })] }));
+      if (info) {
+        s1.push(new Paragraph({ keepNext: true, spacing: { after: 40 }, children: [t('Qué se evalúa: ', { bold: true, size: 17 }), t(info.descripcion, { size: 17 })] }));
+        info.aspectos.forEach((a) => s1.push(new Paragraph({ keepNext: true, indent: { left: 360 }, spacing: { after: 20 }, children: [t(`A${a.n}. `, { bold: true, size: 17 }), t(a.texto, { size: 17 })] })));
+      }
+      const n = f.characteristics.length;
+      s1.push(tabla(['Ponderación', 'Valoración', 'Apreciación del Comité', 'Evidencias'], [[
+        `${(100 / n).toFixed(1)} % del factor · aporte ${ev && ev.rating > 0 ? (ev.rating / n).toFixed(2) : '—'}`,
+        ev && ev.rating > 0 ? `${ev.rating.toFixed(2)} (${nivelDe(ev.rating)})` : '—',
+        cna ? `${cna.code} · ${cna.label}` : 'Sin calificar',
+        `${ev?.evidences.filter((e) => e.checked).length ?? 0} de ${ev?.evidences.length ?? 0} verificadas`,
+      ]], [2400, 2000, 2800, 2160], 16));
+      s1.push(new Paragraph({ spacing: { before: 60, after: 40 }, children: [t('Apreciaciones y hallazgos: ', { bold: true, size: 17 }), t(hallazgosDe(ev) || '—', { size: 17 })] }));
+      if (planesDe(ev).length) s1.push(p([t(`Acciones de mejora: ${planesDe(ev).length} (ver matriz del plan de mejoramiento).`, { size: 16, color: GRIS })], { after: 40 }));
+      enlacesDe(ev).forEach((l) => s1.push(new Paragraph({ spacing: { after: 20 }, indent: { left: 360 }, children: [t(`${l.tipo}: `, { size: 16, color: GRIS }), enlace(l.label, l.url), t(`  ${l.url}`, { size: 14, color: GRIS })] })));
+    });
   });
 
-  s1.push(h('4. Plan de mejoramiento — análisis'));
+  s1.push(h('5. Plan de mejoramiento — análisis'));
   analisis.forEach((x) => s1.push(p(x, { align: AlignmentType.JUSTIFIED })));
   s1.push(p([t('La matriz del plan de mejoramiento se presenta en la sección siguiente (hoja horizontal) y puede diligenciarse y actualizarse directamente en este documento.', { italics: true, color: GRIS })]));
 
-  s1.push(h('5. Nota metodológica'));
+  const todos = CESU_FACTORS.flatMap((f) => f.characteristics.flatMap((c) => enlacesDe(evaluations[c.id], c.code)));
+  s1.push(h('6. Enlaces y documentos soporte'));
+  if (todos.length) {
+    s1.push(new Table({
+      width: { size: 9360, type: WidthType.DXA }, columnWidths: [700, 1600, 3000, 4060],
+      rows: [
+        new TableRow({ tableHeader: true, children: ['Car.', 'Tipo', 'Documento', 'Enlace'].map((e, k) => celda(e, { head: true, w: [700, 1600, 3000, 4060][k], size: 16 })) }),
+        ...todos.map((l) => new TableRow({ children: [
+          celda(l.codigo, { w: 700, size: 16 }), celda(l.tipo, { w: 1600, size: 16 }), celda(l.label, { w: 3000, size: 16 }),
+          new TableCell({ width: { size: 4060, type: WidthType.DXA }, borders: bordes, margins: { top: 50, bottom: 50, left: 80, right: 80 },
+            children: [new Paragraph({ children: [enlace(l.url, l.url, 15)] })] }),
+        ] })),
+      ],
+    }));
+  } else {
+    s1.push(p([t('No se registraron enlaces a documentos soporte.', { color: GRIS })]));
+  }
+
+  s1.push(h('7. Nota metodológica'));
   s1.push(p('Las valoraciones provienen de encuestas de percepción con escala Muy favorable (4), Favorable (3), Desfavorable (2) y Muy desfavorable (1); «No aplica» se excluye. Se promedia por actor, luego entre actores (igual peso) y se convierte a la escala 1–5 mediante v = 1 + (x − 1) × 4/3. Niveles: Pleno ≥ 4,5 · Alto ≥ 4,0 · Aceptable ≥ 3,0 · Deficiente < 3,0. La apreciación del Comité (NC, CI, CA, CP) es un juicio cualitativo basado en evidencias sobre los aspectos por evaluar y no modifica la valoración numérica.', { align: AlignmentType.JUSTIFIED }));
 
   s1.push(new Paragraph({ spacing: { before: 900 }, children: [] }));
   s1.push(new Table({
     width: { size: 9360, type: WidthType.DXA }, columnWidths: [4680, 4680],
-    rows: [new TableRow({ children: ['Equipo de autoevaluación del programa', 'Comité de Aseguramiento de la Calidad'].map((txt) =>
+    rows: [new TableRow({ children: [programInfo.evaluatorName || 'Equipo de autoevaluación del programa', 'Comité de Aseguramiento de la Calidad'].map((txt) =>
       new TableCell({ borders: { top: { style: BorderStyle.SINGLE, size: 6, color: '6B7280' }, bottom: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' }, left: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' }, right: { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' } },
         margins: { left: 300, right: 300 },
         children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [t(txt, { bold: true, size: 18 })] }),

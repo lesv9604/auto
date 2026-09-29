@@ -10,6 +10,8 @@
     button { margin-top: 16px; width: 100%; padding: 9px; background: #22366D; color: #fff;
              border: 0; border-radius: 4px; font-weight: bold; cursor: pointer; }
     button:disabled { opacity: .6; }
+    button.sec { margin-top: 8px; background: #fff; color: #22366D; border: 1px solid #22366D; }
+    .nota { font-size: 11px; color: #64748b; }
     #msg { margin-top: 12px; font-size: 12px; } .err { color: #b91c1c; } .ok { color: #047857; }
   </style>
 </head>
@@ -22,7 +24,10 @@
     <div><label>Desde</label><input type="date" id="desde"></div>
     <div><label>Hasta</label><input type="date" id="hasta"></div>
   </div>
-  <button id="btn" onclick="exportar()">Exportar .csv</button>
+  <button id="btn" onclick="exportar()">Exportar resultados (.csv)</button>
+  <button id="btn2" class="sec" onclick="plantilla()">Descargar plantilla vacía (.csv)</button>
+  <p class="nota">Resultados: cuenta las respuestas del programa en el rango de fechas.<br>
+  Plantilla: archivo en ceros para diligenciar a mano (sin usar esta hoja).</p>
   <div id="msg"></div>
 
 <script>
@@ -42,18 +47,28 @@
     $('prog').innerHTML = p.map(function (x) { return '<option>' + x + '</option>'; }).join('');
   }
 
+  function ocupado(b) { $('btn').disabled = b; $('btn2').disabled = b; }
+  function descargar(r) {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + r.csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = r.nombre; document.body.appendChild(a); a.click(); a.remove();
+  }
   function exportar() {
-    $('btn').disabled = true; $('msg').className = ''; $('msg').textContent = 'Generando…';
+    ocupado(true); $('msg').className = ''; $('msg').textContent = 'Generando…';
     google.script.run.withSuccessHandler(function (r) {
-      $('btn').disabled = false;
-      $('msg').className = 'ok';
+      ocupado(false); $('msg').className = 'ok';
       $('msg').innerHTML = '✓ ' + r.resumen + '<br>Guardado en Drive: <a href="' + r.url + '" target="_blank">' + r.nombre + '</a>';
-      var a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob(['﻿' + r.csv], { type: 'text/csv;charset=utf-8' }));
-      a.download = r.nombre; document.body.appendChild(a); a.click(); a.remove();
+      descargar(r);
     }).withFailureHandler(error).exportarCSV($('esc').value, $('prog').value, $('desde').value, $('hasta').value);
   }
-  function error(e) { $('btn').disabled = false; $('msg').className = 'err'; $('msg').textContent = e.message || e; }
+  function plantilla() {
+    ocupado(true); $('msg').className = ''; $('msg').textContent = 'Generando plantilla…';
+    google.script.run.withSuccessHandler(function (r) {
+      ocupado(false); $('msg').className = 'ok'; $('msg').textContent = '✓ Plantilla: ' + r.resumen;
+      descargar(r);
+    }).withFailureHandler(error).plantillaCSV($('esc').value, $('prog').value, $('desde').value, $('hasta').value);
+  }
+  function error(e) { ocupado(false); $('msg').className = 'err'; $('msg').textContent = e.message || e; }
 </script>
 </body>
 </html>

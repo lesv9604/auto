@@ -18,7 +18,7 @@ var PESTANAS = {
   'Empleadores':     'Empleadores',
   'Directivos':      'Directivos',
   'Egresados':       'Egresados',
-  'Administrativos': 'Administrativos'
+  'Administrativos': 'Personal Administrativos'
 };
 
 var COL_FECHA    = ['marca temporal', 'timestamp'];
@@ -33,13 +33,13 @@ var ESCALA = {
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('Autoevaluación')
-    .addItem('Exportar resultados (.csv)…', 'abrirDialogo')
+    .addItem('Exportar resultados / plantilla (.csv)…', 'abrirDialogo')
     .addToUi();
 }
 
 function abrirDialogo() {
   var html = HtmlService.createHtmlOutputFromFile('ExportarDialogo')
-    .setWidth(440).setHeight(420);
+    .setWidth(440).setHeight(500);
   SpreadsheetApp.getUi().showModalDialog(html, 'Exportar resultados para autoevaluación');
 }
 
@@ -108,6 +108,32 @@ function exportarCSV(escuela, programa, desde, hasta) {
   } catch (e) { /* queda en Mi unidad */ }
 
   return { nombre: nombre, url: archivo.getUrl(), csv: csv, resumen: resumen.join(' · ') + ' · Total: ' + total };
+}
+
+/**
+ * Plantilla vacía con todas las combinaciones actor × característica que
+ * existen en las pestañas (según los encabezados [Cxx]). Para diligenciar a
+ * mano cuando no se usa la hoja de respuestas.
+ */
+function plantillaCSV(escuela, programa, desde, hasta) {
+  if (!escuela || !programa) throw new Error('Seleccione escuela y programa.');
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var filas = [['Escuela', 'Programa', 'Desde', 'Hasta', 'Generado', 'Actor', 'Codigo',
+                'Encuestados', 'MuyFavorable', 'Favorable', 'Desfavorable', 'MuyDesfavorable', 'NoAplica']];
+  var generado = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd'T'HH:mm:ss");
+  Object.keys(PESTANAS).forEach(function (actor) {
+    var hoja = ss.getSheetByName(PESTANAS[actor]);
+    if (!hoja) return;
+    var enc = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
+    var codigos = {};
+    enc.forEach(function (t) { var m = String(t).match(RE_CODIGO); if (m) codigos['C' + m[1]] = true; });
+    Object.keys(codigos).sort().forEach(function (code) {
+      filas.push([escuela, programa, desde || '', hasta || '', generado, actor, code, 0, 0, 0, 0, 0, 0]);
+    });
+  });
+  var csv = filas.map(function (f) { return f.map(csvCell_).join(','); }).join('\r\n');
+  var nombre = 'Plantilla_' + slug_(programa) + '.csv';
+  return { nombre: nombre, csv: csv, resumen: (filas.length - 1) + ' filas (actor × característica)' };
 }
 
 // ─── Utilidades ──────────────────────────────────────────────────────────────

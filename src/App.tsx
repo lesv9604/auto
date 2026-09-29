@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ActiveTab, CharacteristicEvaluation, ProgramInfo, DiagnosticSession, ProgramLevel } from './types';
 import { CESU_FACTORS } from './data/cesuData';
 import {
@@ -6,6 +6,7 @@ import {
   createBlankEvaluationData,
 } from './data/unipazPrograms';
 import { calculateDiagnostics } from './utils/calc';
+import { applySurveyToEvaluations, parseResultsCsv } from './utils/surveys';
 import { Header } from './components/Header';
 import { FactorNav } from './components/FactorNav';
 import { CharacteristicForm } from './components/CharacteristicForm';
@@ -86,6 +87,8 @@ export default function App() {
   const [activeFactorId, setActiveFactorId] = useState<number>(1);
   const [activeCharacteristicId, setActiveCharacteristicId] = useState<number>(1);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [syncState, setSyncState] = useState<{ msg: string | null; error: boolean }>({ msg: null, error: false });
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   // ── Persistir cambios en evaluaciones ──
   useEffect(() => {
@@ -231,6 +234,21 @@ export default function App() {
     }
   };
 
+  // ── Cargar resultados de encuestas (.csv exportado desde la hoja) ──
+  const handleCsvFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // permite volver a cargar el mismo archivo
+    if (!file) return;
+    try {
+      const payload = parseResultsCsv(await file.text(), programInfo.faculty, programInfo.programName);
+      setEvaluations((prev) => applySurveyToEvaluations(payload, prev!));
+      const total = Object.values(payload.actores).reduce((s, a) => s + a.n, 0);
+      setSyncState({ msg: `${total} encuestados · ${payload.desde} a ${payload.hasta}`, error: false });
+    } catch (err) {
+      setSyncState({ msg: (err as Error).message, error: true });
+    }
+  };
+
   const handleImportData = (
     importedInfo: ProgramInfo,
     importedEvals: Record<number, CharacteristicEvaluation>
@@ -262,12 +280,26 @@ export default function App() {
           <span className="text-emerald-300 hidden sm:inline">·</span>
           <span className="text-emerald-200 text-xs hidden sm:inline truncate">{programInfo.faculty}</span>
         </div>
+        <div className="flex items-center gap-2 shrink-0 ml-4">
+          {syncState.msg && (
+            <span className={`text-[11px] hidden md:inline ${syncState.error ? 'text-amber-200' : 'text-emerald-100'}`}>
+              {syncState.error ? '⚠ ' : '✓ '}{syncState.msg}
+            </span>
+          )}
+          <input ref={csvInputRef} type="file" accept=".csv,text/csv" onChange={handleCsvFile} className="hidden" />
+          <button
+            onClick={() => csvInputRef.current?.click()}
+            className="text-xs bg-white text-emerald-800 font-semibold hover:bg-emerald-50 px-3 py-1 rounded-full transition-colors"
+          >
+            ⬆ Cargar resultados (.csv)
+          </button>
         <button
           onClick={handleBackToSelector}
-          className="shrink-0 ml-4 text-xs bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full transition-colors"
+          className="shrink-0 text-xs bg-white/20 hover:bg-white/30 px-3 py-1 rounded-full transition-colors"
         >
           ← Cambiar programa
         </button>
+        </div>
       </div>
 
       {/* Main */}

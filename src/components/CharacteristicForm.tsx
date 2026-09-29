@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CharacteristicDef, CharacteristicEvaluation, FactorDef } from '../types';
+import { CharacteristicDef, CharacteristicEvaluation, FactorDef, SurveySummary } from '../types';
 import { getStatusBadgeInfo, getAutoWeightLabel } from '../utils/calc';
 import {
   CheckSquare, Square, Plus, Trash2, ArrowLeft, ArrowRight,
@@ -151,6 +151,28 @@ export const CharacteristicForm: React.FC<CharacteristicFormProps> = ({
             <p className="text-[11px] text-slate-500 italic">
               Calculado a partir de las encuestas. No editable.
             </p>
+
+            {evaluation.survey && Object.keys(evaluation.survey.byActor).length > 0 && (
+              <div className="mt-3 space-y-1">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  Promedio Likert {evaluation.survey.likert.toFixed(2)} / 4 · por actor
+                </p>
+                {evaluation.survey.periodo && (
+                  <p className="text-[10px] text-slate-400">Respuestas del {evaluation.survey.periodo}</p>
+                )}
+                {Object.entries(evaluation.survey.byActor).map(([actor, a]: [string, SurveySummary['byActor'][string]]) => (
+                  <div key={actor} className="flex items-center justify-between text-xs text-slate-700">
+                    <span>{actor}</span>
+                    <span className="font-mono">
+                      {a.likert.toFixed(2)} <span className="text-slate-400">({a.respuestas} resp. · n={a.n})</span>
+                    </span>
+                  </div>
+                ))}
+                {evaluation.survey.lowSample && (
+                  <p className="text-[11px] text-amber-700">⚠ Algún actor tiene pocas respuestas; interpretar con cautela.</p>
+                )}
+              </div>
+            )}
 
             {/* Modo prueba: solo si VITE_VALORACION_MANUAL=true */}
             {VALORACION_MANUAL && (

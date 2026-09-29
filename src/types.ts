@@ -14,6 +14,20 @@ export interface CharacteristicEvaluation {
   qualitativeJustification: string;
   actionPlan: string;
   evidences: EvidenceItem[];
+  survey?: SurveySummary; // Resultado de encuestas (solo lectura)
+}
+
+export interface SurveySummary {
+  likert: number; // Promedio 1–4 (media de actores)
+  byActor: Record<string, {
+    likert: number;
+    respuestas: number; // respuestas válidas (sin "No aplica")
+    n: number;          // encuestados del actor en el programa
+    counts: { mf: number; f: number; d: number; md: number; na: number };
+  }>;
+  fetchedAt: string;
+  periodo?: string; // rango de fechas de las respuestas
+  lowSample: boolean;
 }
 
 export interface CharacteristicDef {

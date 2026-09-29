@@ -158,14 +158,16 @@ export const Header: React.FC<HeaderProps> = ({
           <div>
             <label className="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-1">
               <UserCheck className="w-3 h-3 text-amber-400" />
-              Evaluador / Comité
+              Evaluador / Comité <span className="text-rose-400">*</span>
             </label>
             <input
               type="text"
               value={programInfo.evaluatorName}
               onChange={(e) => onUpdateProgramInfo({ evaluatorName: e.target.value })}
-              className="w-full bg-slate-800 text-white border border-slate-700 rounded px-2.5 py-1 text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none"
-              placeholder="Escriba el nombre del evaluador o comité"
+              required
+              aria-required="true"
+              className={`w-full bg-slate-800 text-white border rounded px-2.5 py-1 text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none ${programInfo.evaluatorName.trim() ? 'border-slate-700' : 'border-rose-500'}`}
+              placeholder="Obligatorio: evaluador o comité responsable"
             />
           </div>
 

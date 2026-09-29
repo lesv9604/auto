@@ -348,6 +348,7 @@ export default function App() {
         {activeTab === 'report' && (
           <PrintableReport
             programInfo={programInfo}
+            onUpdateProgramInfo={(updated) => setProgramInfo((prev) => ({ ...prev!, ...updated }))}
             diagnostics={diagnostics}
             evaluations={evaluations}
           />

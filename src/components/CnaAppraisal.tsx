@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link2, Trash2, ExternalLink, Info } from 'lucide-react';
+import { Link2, Trash2, ExternalLink, BookOpen, MessageSquareQuote, Award, NotebookPen, Paperclip } from 'lucide-react';
 import { CharacteristicEvaluation } from '../types';
 import { CESU_ASPECTS, ESCALA_CNA, FUENTE_ASPECTOS } from '../data/cesuAspects';
 
@@ -9,10 +9,11 @@ interface Props {
   onUpdate: (e: CharacteristicEvaluation) => void;
 }
 
-const AZUL = '#273475';
 const esUrlValida = (u: string) => /^https?:\/\/\S+$/i.test(u.trim());
+const titulo = 'text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5';
+const campo = 'w-full p-2 text-xs bg-white border border-slate-200 rounded text-slate-800 focus:ring-1 focus:ring-emerald-600 focus:outline-none';
 
-/** Aspectos por evaluar + apreciación del Comité con escala CNA (NC/CI/CA/CP). */
+/** Aspectos por evaluar + apreciación del Comité (escala CNA), con el estilo de la herramienta. */
 export const CnaAppraisal: React.FC<Props> = ({ code, evaluation, onUpdate }) => {
   const info = CESU_ASPECTS[code];
   const [label, setLabel] = useState('');
@@ -21,83 +22,83 @@ export const CnaAppraisal: React.FC<Props> = ({ code, evaluation, onUpdate }) =>
   if (!info) return null;
 
   const adjuntos = evaluation.adjuntos ?? [];
+  const sel = ESCALA_CNA.find((n) => n.code === evaluation.cnaLevel);
   const addLink = () => {
     if (!esUrlValida(url)) return;
-    onUpdate({
-      ...evaluation,
-      adjuntos: [...adjuntos, { id: `adj-${Date.now()}`, label: label.trim() || url.trim(), url: url.trim() }],
-    });
+    onUpdate({ ...evaluation, adjuntos: [...adjuntos, { id: `adj-${Date.now()}`, label: label.trim() || url.trim(), url: url.trim() }] });
     setLabel(''); setUrl(''); setOpen(false);
   };
 
   return (
-    <section className="space-y-5 pt-2 border-t border-slate-200">
-      {/* Aspectos por evaluar */}
-      <div className="rounded-xl p-5 border-l-4" style={{ background: '#EEF0F8', borderColor: AZUL }}>
-        <h3 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: AZUL }}>
-          Aspectos por evaluar — Acuerdo CESU 01/2025
-        </h3>
-        <ol className="space-y-2 text-sm text-slate-700">
+    <div className="space-y-4">
+      {/* Aspectos por evaluar + perspectiva */}
+      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 border-l-4 border-l-emerald-600 space-y-3">
+        <h3 className={titulo}><BookOpen className="w-4 h-4 text-emerald-700" />Aspectos por evaluar</h3>
+        <ol className="space-y-1.5 text-xs text-slate-700 leading-relaxed">
           {info.aspectos.map((a) => (
-            <li key={a.n}><b className="text-slate-900">A{a.n}.</b> {a.texto}</li>
+            <li key={a.n} className="flex gap-2">
+              <span className="font-mono font-bold text-emerald-700 shrink-0">A{a.n}</span>
+              <span>{a.texto}</span>
+            </li>
           ))}
         </ol>
-        <p className="mt-3 text-[11px] text-slate-500 flex gap-1.5"><Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />{FUENTE_ASPECTOS}</p>
-      </div>
-
-      {/* Perspectiva */}
-      <div className="rounded-xl p-5 bg-white border border-slate-200">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Perspectiva del programa</h3>
-        <p className="text-base text-slate-900">{info.pregunta}</p>
-      </div>
-
-      {/* Calificación escala CNA */}
-      <div>
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
-          Calificación del Comité — escala CNA
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {ESCALA_CNA.map((n) => {
-            const sel = evaluation.cnaLevel === n.code;
-            return (
-              <button key={n.code} type="button"
-                onClick={() => onUpdate({ ...evaluation, cnaLevel: sel ? undefined : n.code })}
-                aria-pressed={sel}
-                className="text-left p-4 rounded-xl border-2 bg-white transition-colors hover:bg-slate-50"
-                style={{ borderColor: sel ? n.color : '#E2E8F0', boxShadow: sel ? `inset 0 0 0 1px ${n.color}` : undefined }}>
-                <span className="text-xs font-bold" style={{ color: n.color }}>{n.code}</span>
-                <span className="block font-bold text-slate-900">{n.label}</span>
-                <span className="block text-xs text-slate-500 mt-0.5">{n.desc}</span>
-              </button>
-            );
-          })}
+        <div className="pt-2 border-t border-slate-200 flex gap-2 text-xs text-slate-700">
+          <MessageSquareQuote className="w-4 h-4 text-slate-400 shrink-0" />
+          <span><b className="text-slate-800">Perspectiva del programa:</b> {info.pregunta}</span>
         </div>
-        <p className="text-[11px] text-slate-500 mt-2">
-          Apreciación cualitativa del Comité basada en evidencias. No modifica la valoración calculada desde las encuestas.
+        <p className="text-[10px] text-slate-400">{FUENTE_ASPECTOS}</p>
+      </div>
+
+      {/* Calificación del Comité (escala CNA) */}
+      <div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={titulo}><Award className="w-4 h-4 text-emerald-700" />Calificación del Comité (CNA)</span>
+          <div className="flex gap-1" role="radiogroup" aria-label="Calificación escala CNA">
+            {ESCALA_CNA.map((n) => {
+              const on = evaluation.cnaLevel === n.code;
+              return (
+                <button key={n.code} type="button" role="radio" aria-checked={on} title={`${n.label}: ${n.desc}`}
+                  onClick={() => onUpdate({ ...evaluation, cnaLevel: on ? undefined : n.code })}
+                  className={`px-2.5 py-1 text-xs font-bold rounded transition-colors ${on ? 'text-white shadow' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-100'}`}
+                  style={on ? { background: n.color } : undefined}>
+                  {n.code}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <p className="text-[11px] text-slate-500 mt-1">
+          {sel ? <><b style={{ color: sel.color }}>{sel.label}.</b> {sel.desc}</> : 'NC No se cumple · CI Insuficiente · CA Aceptable · CP Plenamente. No modifica la valoración de las encuestas.'}
         </p>
       </div>
 
       {/* Apreciaciones y hallazgos */}
       <div>
-        <label className="text-sm font-bold text-slate-700 block mb-1.5">Apreciaciones y hallazgos</label>
-        <textarea
-          rows={6}
-          value={evaluation.hallazgos ?? ''}
-          onChange={(e) => onUpdate({ ...evaluation, hallazgos: e.target.value })}
-          placeholder={'Registre los hallazgos del proceso de autoevaluación:\n· Fortalezas identificadas con evidencia\n· Oportunidades de mejora detectadas\n· Acciones en curso o planificadas\n· Referentes comparativos consultados'}
-          className="w-full text-sm p-3 bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-[#273475]"
-        />
+        <label className={`${titulo} mb-1.5`}><NotebookPen className="w-4 h-4 text-purple-700" />Apreciaciones y hallazgos</label>
+        <textarea rows={4}
+          value={evaluation.hallazgos ?? evaluation.qualitativeJustification ?? ''}
+          onChange={(e) => onUpdate({ ...evaluation, hallazgos: e.target.value, qualitativeJustification: '' })}
+          placeholder="Estado actual, fortalezas con evidencia, oportunidades de mejora, acciones en curso y referentes consultados…"
+          className={`${campo} p-3 leading-relaxed`} />
       </div>
 
-      {/* Documentos adjuntos (enlaces) */}
-      <div className="pt-3 border-t border-dashed border-slate-300">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Documentos adjuntos</h3>
+      {/* Documentos soporte (enlaces) */}
+      <div>
+        <div className="flex items-center justify-between gap-2 mb-1.5">
+          <span className={titulo}><Paperclip className="w-4 h-4 text-slate-600" />Documentos soporte</span>
+          {!open && (
+            <button type="button" onClick={() => setOpen(true)}
+              className="px-2.5 py-1 text-xs font-semibold rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 flex items-center gap-1">
+              <Link2 className="w-3.5 h-3.5 text-emerald-700" /> Agregar enlace
+            </button>
+          )}
+        </div>
         {adjuntos.length > 0 && (
-          <ul className="mb-3 space-y-1.5">
+          <ul className="space-y-1 mb-2">
             {adjuntos.map((d) => (
-              <li key={d.id} className="flex items-center gap-2 text-sm">
-                <a href={d.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:underline" style={{ color: AZUL }}>
-                  <ExternalLink className="w-3.5 h-3.5" />{d.label}
+              <li key={d.id} className="flex items-center gap-2 text-xs bg-white border border-slate-200 rounded px-2 py-1.5">
+                <a href={d.url} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0 flex items-center gap-1.5 text-emerald-800 hover:underline truncate">
+                  <ExternalLink className="w-3.5 h-3.5 shrink-0" /><span className="truncate">{d.label}</span>
                 </a>
                 <button type="button" onClick={() => onUpdate({ ...evaluation, adjuntos: adjuntos.filter((x) => x.id !== d.id) })}
                   className="text-slate-400 hover:text-rose-600" aria-label="Eliminar enlace"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -105,26 +106,17 @@ export const CnaAppraisal: React.FC<Props> = ({ code, evaluation, onUpdate }) =>
             ))}
           </ul>
         )}
-        {open ? (
-          <div className="flex flex-col sm:flex-row gap-2">
-            <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Nombre del documento"
-              className="flex-1 text-sm px-3 py-2 border border-slate-300 rounded-lg" />
-            <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://drive.google.com/…"
-              className="flex-[2] text-sm px-3 py-2 border border-slate-300 rounded-lg" />
+        {open && (
+          <div className="flex flex-col sm:flex-row gap-1.5">
+            <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Nombre del documento" className={`${campo} sm:w-1/3`} />
+            <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://drive.google.com/…" className={campo} />
             <button type="button" onClick={addLink} disabled={!esUrlValida(url)}
-              className="px-4 py-2 text-sm font-semibold text-white rounded-lg disabled:opacity-50" style={{ background: AZUL }}>Agregar</button>
-            <button type="button" onClick={() => setOpen(false)} className="px-3 py-2 text-sm text-slate-500">Cancelar</button>
+              className="px-3 py-1.5 text-xs font-semibold rounded bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50">Agregar</button>
+            <button type="button" onClick={() => setOpen(false)} className="px-2 py-1.5 text-xs text-slate-500">Cancelar</button>
           </div>
-        ) : (
-          <button type="button" onClick={() => setOpen(true)}
-            className="px-4 py-2 text-sm font-bold rounded-lg border-2 flex items-center gap-2" style={{ borderColor: AZUL, color: AZUL }}>
-            <Link2 className="w-4 h-4" /> Agregar enlace
-          </button>
         )}
-        <p className="text-[11px] text-slate-500 mt-2">
-          Los documentos se vinculan por enlace (Drive institucional con permisos de la institución). La herramienta no almacena archivos.
-        </p>
+        {adjuntos.length === 0 && !open && <p className="text-[11px] text-slate-400">Vincule documentos por enlace (Drive institucional). La herramienta no almacena archivos.</p>}
       </div>
-    </section>
+    </div>
   );
 };

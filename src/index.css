@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ─── Informe institucional (PrintableReport) ─────────────────────────────── */
-.rpt-wrap, .rpt { --rpt-h: 33mm; --rpt-f: 18mm; }
+.rpt-wrap, .rpt { --rpt-h: 33mm; --rpt-f: 23mm; }
 .rpt {
   background: #fff; color: #1f2937; max-width: 216mm; margin: 0 auto;
   padding: 14mm 16mm; box-shadow: 0 1px 3px rgb(0 0 0 / .12); border-radius: 6px;
@@ -62,15 +62,16 @@
 
 @page {
   size: letter;
-  margin: 10mm 15mm 12mm;
-  @bottom-right { content: "Página " counter(page) " de " counter(pages); font-size: 8pt; color: #4b5563; }
+  margin: 10mm 15mm 20mm;
+  @bottom-right { content: "Página " counter(page) " de " counter(pages); font-size: 8pt; color: #4b5563; vertical-align: top; padding-top: 3mm; border-top: 3px double #00963F; }
 }
 @media print {
   html, body { background: #fff !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .rpt { box-shadow: none; border-radius: 0; padding: 0; max-width: none; }
   .rpt-header { position: fixed; top: 0; left: 0; right: 0; background: #fff; }
-  .rpt-footer { position: fixed; bottom: 0; left: 0; right: 0; margin: 0; background: #fff; }
+  .rpt-footer { display: none; }            /* en impresión el pie va en las cajas de margen de @page */
+  .rpt-page > tfoot { display: none !important; }
   .rpt-page > thead { display: table-header-group; } .rpt-page > tfoot { display: table-footer-group; }
   .rpt-space-top { height: var(--rpt-h); } .rpt-space-bottom { height: var(--rpt-f); }
   .rpt-cover { break-after: page; padding-top: 30mm; }
@@ -79,3 +80,16 @@
   .rpt { display: flex; flex-direction: column; }
   .rpt-header { order: 1; } .rpt-page { order: 2; } .rpt-footer { order: 3; }
 }
+.rpt-table-sm { font-size: 8pt; } .rpt-table-sm td { vertical-align: top; }
+.rpt-ficha { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin-bottom: 4mm; break-inside: avoid; }
+.rpt-ficha th, .rpt-ficha td { border: 1px solid #cbd5e1; padding: 1.2mm 2mm; text-align: left; vertical-align: top; }
+.rpt-ficha tr:first-child th { color: #fff; font-size: 9pt; }
+.rpt-ficha th { background: #EEF0F8; width: 24%; font-weight: 700; color: #273475; }
+.rpt-sec h3 { break-after: avoid; }
+.rpt-table-xs { font-size: 7.5pt; } .rpt-table-xs td, .rpt-table-xs th { padding: .8mm 1.5mm; }
+.rpt-aspects { background: #f8fafc; border-left: 2px solid #00963F; padding: 1.5mm 2.5mm; margin: 1mm 0 1.5mm; font-size: 8.5pt; }
+.rpt-aspects ul { margin: .5mm 0 0 3mm; } .rpt-aspects li { margin-bottom: .5mm; }
+.rpt-links { font-size: 8.5pt; } .rpt-links ul { margin-left: 3mm; }
+.rpt a { color: #273475; text-decoration: underline; }
+.rpt-url { color: #6b7280; font-size: 7.5pt; word-break: break-all; }
+.rpt-url-cell { word-break: break-all; }

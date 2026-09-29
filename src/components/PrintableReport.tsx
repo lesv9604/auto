@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { CharacteristicEvaluation, ConsolidatedDiagnostics, ProgramInfo, SurveySummary } from '../types';
 import { CESU_FACTORS } from '../data/cesuData';
 import { INSTITUCION } from '../data/institution';
+import { ESCALA_CNA } from '../data/cesuAspects';
 import { Printer } from 'lucide-react';
 import logo from '../assets/logo-unipaz.png';
 import { printReport } from '../utils/printReport';
@@ -216,9 +217,19 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
                             Percepción (Likert 1–4): {actores.map(([a, d]) => `${a} ${d.likert.toFixed(2)} (n=${d.n})`).join(' · ')}
                           </p>
                         )}
+                        {ev.cnaLevel && (() => {
+                          const n = ESCALA_CNA.find((x) => x.code === ev.cnaLevel)!;
+                          return <p><b>Apreciación del Comité (escala CNA):</b> <span style={{ color: n.color, fontWeight: 700 }}>{n.code} · {n.label}</span></p>;
+                        })()}
                         {ev.qualitativeJustification && <p><b>Análisis:</b> {ev.qualitativeJustification}</p>}
+                        {ev.hallazgos && <p style={{ whiteSpace: 'pre-line' }}><b>Apreciaciones y hallazgos:</b> {ev.hallazgos}</p>}
                         {ev.actionPlan && <p><b>Plan de mejoramiento:</b> {ev.actionPlan}</p>}
                         {ev.evidences.length > 0 && <p className="rpt-muted">Evidencias verificadas: {evid} de {ev.evidences.length}</p>}
+                        {ev.adjuntos && ev.adjuntos.length > 0 && (
+                          <p className="rpt-muted">Documentos soporte: {ev.adjuntos.map((d, i) => (
+                            <span key={d.id}>{i > 0 && ' · '}<a href={d.url}>{d.label}</a></span>
+                          ))}</p>
+                        )}
                       </div>
                     );
                   })}
@@ -235,7 +246,7 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
                 Para cada característica se promedia por actor, luego se promedian los actores (cada actor pesa igual) y el
                 resultado se convierte a la escala 1–5 mediante <i>v = 1 + (x − 1) × 4/3</i>. La valoración de cada factor es el
                 promedio de sus características (igual peso) y la global el promedio de todas las características evaluadas.
-                Niveles: Pleno ≥ 4,5 · Alto ≥ 4,0 · Aceptable ≥ 3,0 · Deficiente &lt; 3,0.
+                Niveles: Pleno ≥ 4,5 · Alto ≥ 4,0 · Aceptable ≥ 3,0 · Deficiente &lt; 3,0. La apreciación del Comité (NC, CI, CA, CP) es un juicio cualitativo basado en evidencias sobre los aspectos por evaluar derivados del Acuerdo 01/2025 y no modifica la valoración numérica.
               </p>
             </section>
 

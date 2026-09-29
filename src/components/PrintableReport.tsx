@@ -1,9 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { CharacteristicEvaluation, ConsolidatedDiagnostics, ProgramInfo, SurveySummary } from '../types';
 import { CESU_FACTORS } from '../data/cesuData';
 import { INSTITUCION } from '../data/institution';
 import { ESCALA_CNA } from '../data/cesuAspects';
-import { Printer } from 'lucide-react';
+import { filasPlan, analisisPlan, hallazgosDe, planesDe, fmtFechaCorta, ESTADO_COLOR } from '../utils/plan';
+import { Printer, FileText } from 'lucide-react';
 import logo from '../assets/logo-unipaz.png';
 import { printReport } from '../utils/printReport';
 
@@ -48,11 +49,34 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
   });
   const totalEncuestados = Object.values(encuestados).reduce((s, n) => s + n, 0);
   const reportRef = useRef<HTMLDivElement>(null);
+  const [generando, setGenerando] = useState(false);
+  const nombreArchivo = `Informe_Autoevaluacion_${programInfo.programName}_${programInfo.period}`.replace(/[^\p{L}\p{N}]+/gu, '_');
+  const handleDocx = async () => {
+    setGenerando(true);
+    try {
+      const { generarInformeDocx } = await import('../utils/reportDocx');
+      const blob = await generarInformeDocx(programInfo, diagnostics, evaluations, logo);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${nombreArchivo}.docx`;
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { a.remove(); URL.revokeObjectURL(a.href); }, 2000);
+    } catch (e) {
+      alert('No se pudo generar el documento Word: ' + (e as Error).message);
+    } finally {
+      setGenerando(false);
+    }
+  };
   const handlePrint = () => {
     if (!reportRef.current) return;
     const nombre = `Informe_Autoevaluacion_${programInfo.programName}_${programInfo.period}`.replace(/[^\p{L}\p{N}]+/gu, '_');
-    printReport(reportRef.current, nombre);
+    printReport(reportRef.current, nombre, [
+      `${INSTITUCION.sigla} · ${INSTITUCION.nombre} · ${INSTITUCION.ciudad} · ${INSTITUCION.web}`,
+      `${INSTITUCION.pie} · Generado el ${new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })}`,
+    ]);
   };
+  const filas = filasPlan(evaluations);
+  const analisis = analisisPlan(evaluations, filas);
   const hoy = new Date().toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (
@@ -62,11 +86,18 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
         <p className="text-xs text-slate-500">
           Vista previa del informe. Use <b>Imprimir / Guardar como PDF</b> y elija tamaño <b>Carta</b>, márgenes <b>Predeterminados</b> y active <b>Gráficos de fondo</b>.
         </p>
+        <div className="flex gap-2 shrink-0 ml-4">
+        <button onClick={handleDocx} disabled={generando}
+          className="px-4 py-2 text-xs font-semibold rounded-lg flex items-center gap-2 border-2 bg-white disabled:opacity-60"
+          style={{ borderColor: azul, color: azul }}>
+          <FileText className="w-4 h-4" /> {generando ? 'Generando…' : 'Descargar Word (.docx)'}
+        </button>
         <button id="btn-imprimir-informe" onClick={handlePrint}
-          className="px-4 py-2 text-white text-xs font-semibold rounded-lg flex items-center gap-2 shrink-0 ml-4"
+          className="px-4 py-2 text-white text-xs font-semibold rounded-lg flex items-center gap-2"
           style={{ background: azul }}>
           <Printer className="w-4 h-4" /> Imprimir / Guardar como PDF
         </button>
+        </div>
       </div>
 
       <div ref={reportRef} id="informe-rpt" className="rpt" style={{ fontFamily: INSTITUCION.fuente }}>
@@ -221,9 +252,8 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
                           const n = ESCALA_CNA.find((x) => x.code === ev.cnaLevel)!;
                           return <p><b>Apreciación del Comité (escala CNA):</b> <span style={{ color: n.color, fontWeight: 700 }}>{n.code} · {n.label}</span></p>;
                         })()}
-                        {ev.qualitativeJustification && <p><b>Análisis:</b> {ev.qualitativeJustification}</p>}
-                        {ev.hallazgos && <p style={{ whiteSpace: 'pre-line' }}><b>Apreciaciones y hallazgos:</b> {ev.hallazgos}</p>}
-                        {ev.actionPlan && <p><b>Plan de mejoramiento:</b> {ev.actionPlan}</p>}
+                        {hallazgosDe(ev) && <p style={{ whiteSpace: 'pre-line' }}><b>Apreciaciones y hallazgos:</b> {hallazgosDe(ev)}</p>}
+                        {planesDe(ev).length > 0 && <p className="rpt-muted">Acciones de mejora: {planesDe(ev).length} (ver sección 5).</p>}
                         {ev.evidences.length > 0 && <p className="rpt-muted">Evidencias verificadas: {evid} de {ev.evidences.length}</p>}
                         {ev.adjuntos && ev.adjuntos.length > 0 && (
                           <p className="rpt-muted">Documentos soporte: {ev.adjuntos.map((d, i) => (
@@ -237,9 +267,65 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
               ))}
             </section>
 
-            {/* ── 5. Nota metodológica ────────────────────────────── */}
+            {/* ── 5. Plan de mejoramiento ─────────────────────────── */}
+            <section className="rpt-sec">
+              <h2 style={{ color: azul, borderColor: verde }}>5. Plan de mejoramiento</h2>
+              {analisis.map((t, i) => <p key={i}>{t}</p>)}
+
+              {filas.length > 0 && (
+                <>
+                  <h3 style={{ color: azul, marginTop: '4mm' }}>5.1 Matriz resumen</h3>
+                  <table className="rpt-table rpt-table-sm">
+                    <thead>
+                      <tr style={{ background: azul }}>
+                        <th>Factor</th><th>Característica</th><th>Nivel</th><th>Acción de mejora</th>
+                        <th>Responsable</th><th className="c">Límite</th><th className="r">Avance</th><th className="c">Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filas.map((r) => (
+                        <tr key={r.p.id}>
+                          <td className="mono b">{r.factor}</td>
+                          <td><b className="mono">{r.codigo}</b> {r.caracteristica}</td>
+                          <td>{r.nivel}</td>
+                          <td>{r.p.accion || '—'}</td>
+                          <td>{r.p.responsable || '—'}</td>
+                          <td className="c">{fmtFechaCorta(r.p.fechaLimite)}</td>
+                          <td className="r">{r.p.avance} %</td>
+                          <td className="c"><span className="rpt-chip" style={{ color: ESTADO_COLOR[r.estado], borderColor: ESTADO_COLOR[r.estado] }}>{r.estado}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  <h3 style={{ color: azul, marginTop: '5mm' }}>5.2 Fichas de las acciones de mejora</h3>
+                  {filas.map((r, i) => (
+                    <table key={r.p.id} className="rpt-ficha">
+                      <tbody>
+                        <tr><th colSpan={4} style={{ background: azul }}>Acción {i + 1} · {r.factor} · {r.codigo} {r.caracteristica}</th></tr>
+                        <tr><th>Factor</th><td colSpan={3}>{r.factor}. {r.factorNombre}</td></tr>
+                        <tr><th>Nivel</th><td colSpan={3}>Valoración {r.valoracion} · Apreciación del Comité: {r.cna}</td></tr>
+                        <tr><th>Apreciaciones y hallazgos</th><td colSpan={3} style={{ whiteSpace: 'pre-line' }}>{r.hallazgos || '—'}</td></tr>
+                        <tr><th>Causa raíz</th><td colSpan={3}>{r.p.causaRaiz || '—'}</td></tr>
+                        <tr><th>Línea base</th><td>{r.p.lineaBaseValor || '—'}</td><th>Fecha línea base</th><td>{fmtFechaCorta(r.p.lineaBaseFecha)}</td></tr>
+                        <tr><th>Indicador de mejora</th><td>{r.p.indicador || '—'}</td><th>Meta</th><td>{r.p.meta || '—'}</td></tr>
+                        <tr><th>Acción de mejora</th><td colSpan={3}>{r.p.accion || '—'}</td></tr>
+                        <tr><th>Responsable</th><td colSpan={3}>{r.p.responsable || '—'}</td></tr>
+                        <tr><th>Fecha de inicio</th><td>{fmtFechaCorta(r.p.fechaInicio)}</td><th>Fecha límite</th><td>{fmtFechaCorta(r.p.fechaLimite)}</td></tr>
+                        <tr><th>Plazo (meses)</th><td>{r.plazo}</td><th>Avance</th><td>{r.p.avance} %</td></tr>
+                        <tr><th>Estado</th><td colSpan={3}>{r.estado}</td></tr>
+                        <tr><th>Evidencia de cierre</th><td colSpan={3}>{r.p.evidenciaCierre || '—'}</td></tr>
+                        <tr><th>Observaciones</th><td colSpan={3}>{r.p.observaciones || '—'}</td></tr>
+                      </tbody>
+                    </table>
+                  ))}
+                </>
+              )}
+            </section>
+
+            {/* ── 6. Nota metodológica ────────────────────────────── */}
             <section className="rpt-sec rpt-avoid">
-              <h2 style={{ color: azul, borderColor: verde }}>5. Nota metodológica</h2>
+              <h2 style={{ color: azul, borderColor: verde }}>6. Nota metodológica</h2>
               <p>
                 Las valoraciones provienen de encuestas de percepción aplicadas a los actores del programa con escala:
                 Muy favorable (4), Favorable (3), Desfavorable (2) y Muy desfavorable (1); «No aplica» se excluye del cálculo.

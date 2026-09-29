@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CharacteristicDef, CharacteristicEvaluation, FactorDef, SurveySummary } from '../types';
 import { CnaAppraisal } from './CnaAppraisal';
+import { PlanEditor } from './PlanEditor';
 import { getStatusBadgeInfo, getAutoWeightLabel } from '../utils/calc';
 import {
   CheckSquare, Square, Plus, Trash2, ArrowLeft, ArrowRight,
@@ -239,38 +240,11 @@ export const CharacteristicForm: React.FC<CharacteristicFormProps> = ({
           </div>
         </div>
 
-        {/* Justificación y plan de acción */}
-        <div className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-1.5 flex items-center gap-1.5">
-              <FileText className="w-4 h-4 text-purple-700" />
-              Justificación cualitativa y estado actual
-            </label>
-            <textarea
-              rows={3}
-              value={evaluation.qualitativeJustification}
-              onChange={(e) => onUpdateEvaluation({ ...evaluation, qualitativeJustification: e.target.value })}
-              placeholder="Describa hallazgos, fortalezas, evidencias documentales y estado actual del cumplimiento..."
-              className="w-full p-3 text-xs bg-white border border-slate-200 rounded text-slate-800 focus:ring-1 focus:ring-emerald-600 focus:outline-none leading-relaxed"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 mb-1.5 flex items-center gap-1.5">
-              <Lightbulb className="w-4 h-4 text-amber-600" />
-              Oportunidades de mejora / Plan de acción
-            </label>
-            <textarea
-              rows={2}
-              value={evaluation.actionPlan}
-              onChange={(e) => onUpdateEvaluation({ ...evaluation, actionPlan: e.target.value })}
-              placeholder="Acciones concretas para mantener o elevar la calificación..."
-              className="w-full p-3 text-xs bg-white border border-slate-200 rounded text-slate-800 focus:ring-1 focus:ring-amber-600 focus:outline-none leading-relaxed"
-            />
-          </div>
-        </div>
-
         {/* Aspectos por evaluar y apreciación del Comité (escala CNA) */}
         <CnaAppraisal code={characteristic.code} evaluation={evaluation} onUpdate={onUpdateEvaluation} />
+
+        {/* Plan de mejoramiento */}
+        <PlanEditor evaluation={evaluation} onUpdate={onUpdateEvaluation} />
 
         {/* Checklist de evidencias */}
         <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 border-l-4 border-l-slate-700">

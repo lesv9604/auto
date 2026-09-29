@@ -82,9 +82,9 @@ export const CnaAppraisal: React.FC<Props> = ({ code, evaluation, onUpdate }) =>
         <label className="text-sm font-bold text-slate-700 block mb-1.5">Apreciaciones y hallazgos</label>
         <textarea
           rows={6}
-          value={evaluation.hallazgos ?? ''}
-          onChange={(e) => onUpdate({ ...evaluation, hallazgos: e.target.value })}
-          placeholder={'Registre los hallazgos del proceso de autoevaluación:\n· Fortalezas identificadas con evidencia\n· Oportunidades de mejora detectadas\n· Acciones en curso o planificadas\n· Referentes comparativos consultados'}
+          value={evaluation.hallazgos ?? evaluation.qualitativeJustification ?? ''}
+          onChange={(e) => onUpdate({ ...evaluation, hallazgos: e.target.value, qualitativeJustification: '' })}
+          placeholder={'Registre el análisis y los hallazgos del proceso de autoevaluación:\n· Estado actual de la característica\n· Fortalezas identificadas con evidencia\n· Oportunidades de mejora detectadas\n· Acciones en curso o planificadas\n· Referentes comparativos consultados'}
           className="w-full text-sm p-3 bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-[#273475]"
         />
       </div>

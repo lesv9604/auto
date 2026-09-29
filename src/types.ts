@@ -18,6 +18,26 @@ export interface CharacteristicEvaluation {
   cnaLevel?: 'NC' | 'CI' | 'CA' | 'CP'; // Apreciación del Comité (escala CNA)
   hallazgos?: string;                   // Apreciaciones y hallazgos
   adjuntos?: { id: string; label: string; url: string }[]; // Enlaces a documentos soporte
+  planes?: PlanAccion[];                // Plan de mejoramiento de la característica
+}
+
+export type EstadoPlan = 'Sin iniciar' | 'En ejecución' | 'Cumplida' | 'Cancelada';
+
+export interface PlanAccion {
+  id: string;
+  causaRaiz: string;
+  lineaBaseValor: string;
+  lineaBaseFecha: string;  // AAAA-MM-DD
+  indicador: string;
+  meta: string;
+  accion: string;
+  responsable: string;
+  fechaInicio: string;     // AAAA-MM-DD
+  fechaLimite: string;     // AAAA-MM-DD
+  avance: number;          // 0–100
+  estado: EstadoPlan;
+  evidenciaCierre: string;
+  observaciones: string;
 }
 
 export interface SurveySummary {

@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { CharacteristicEvaluation, ProgramInfo } from '../types';
 import { CESU_FACTORS } from '../data/cesuData';
+import { hallazgosDe, planesDe } from '../utils/plan';
 import { Download, Upload, FileSpreadsheet, FileCode, X, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface ImportExportModalProps {
@@ -48,7 +49,7 @@ export const ImportExportModal: React.FC<ImportExportModalProps> = ({
 
   // Export CSV
   const handleExportCSV = () => {
-    let csvContent = 'Factor_Codigo,Factor_Nombre,Caracteristica_Codigo,Caracteristica_Titulo,Valoracion_0a5,Peso_en_Factor_pct,Aporte_al_Factor,Evidencias_Cumplidas,Evidencias_Totales,Justificacion_Cualitativa,Plan_de_Accion\n';
+    let csvContent = 'Factor_Codigo,Factor_Nombre,Caracteristica_Codigo,Caracteristica_Titulo,Valoracion_0a5,Peso_en_Factor_pct,Aporte_al_Factor,Evidencias_Cumplidas,Evidencias_Totales,Apreciaciones_y_Hallazgos,Acciones_de_Mejora\n';
 
     CESU_FACTORS.forEach((factor) => {
       factor.characteristics.forEach((char) => {
@@ -63,8 +64,8 @@ export const ImportExportModal: React.FC<ImportExportModalProps> = ({
           const weightedScore = (ev.rating / factor.characteristics.length).toFixed(2);
           const totalEv = ev.evidences.length;
           const checkedEv = ev.evidences.filter((e) => e.checked).length;
-          const justification = `"${(ev.qualitativeJustification || '').replace(/"/g, '""')}"`;
-          const action = `"${(ev.actionPlan || '').replace(/"/g, '""')}"`;
+          const justification = `"${hallazgosDe(ev).replace(/"/g, '""')}"`;
+          const action = `"${planesDe(ev).map((p) => p.accion).filter(Boolean).join(' | ').replace(/"/g, '""')}"`;
 
           csvContent += `${factorCode},${factorName},${charCode},${charTitle},${rating},${weight},${weightedScore},${checkedEv},${totalEv},${justification},${action}\n`;
         }

@@ -8,6 +8,7 @@ import {
 import { calculateDiagnostics } from './utils/calc';
 import { applySurveyToEvaluations, SurveyPayload } from './utils/surveys';
 import { SurveyImportModal } from './components/SurveyImportModal';
+import { EvaluationReminder, EvaluationStatusGrid } from './components/EvaluationStatus';
 import { Header } from './components/Header';
 import { FactorNav } from './components/FactorNav';
 import { CharacteristicForm } from './components/CharacteristicForm';
@@ -306,6 +307,11 @@ export default function App() {
               evaluations={evaluations}
             />
             <div className="flex-1 min-w-0">
+              <EvaluationReminder
+                evaluations={evaluations}
+                currentId={activeCharacteristic.id}
+                onSelect={handleSelectCharacteristic}
+              />
               <CharacteristicForm
                 factor={activeFactor}
                 characteristic={activeCharacteristic}
@@ -331,6 +337,7 @@ export default function App() {
         )}
 
         {activeTab === 'dashboard' && (
+          <div className="space-y-6">
           <ResultsDashboard
             diagnostics={diagnostics}
             programInfo={programInfo}
@@ -343,6 +350,11 @@ export default function App() {
               setActiveTab('evaluator');
             }}
           />
+          <EvaluationStatusGrid
+            evaluations={evaluations}
+            onSelect={(f, c) => { handleSelectCharacteristic(f, c); setActiveTab('evaluator'); }}
+          />
+          </div>
         )}
 
         {activeTab === 'report' && (

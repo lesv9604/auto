@@ -1,46 +1,43 @@
-# Instructivo para encargados de programa — Resultados de encuestas
+# Instructivo para encargados de programa — Cargar resultados de encuestas
 
-## Opción A · Exportar desde la hoja de respuestas (recomendada)
+No se requiere instalar scripts. La herramienta lee directamente el libro de
+respuestas y **todo se procesa en el navegador**: el archivo no se sube a
+ningún servidor y solo se guardan conteos agregados (no nombres ni observaciones).
+
+## Opción A · Libro de respuestas (.xlsx) — recomendada
 
 1. Abra la hoja **Encuesta Autoevaluación UNIPAZ - CESU 01/25**.
-2. Menú **Autoevaluación → Exportar resultados / plantilla (.csv)…**
-   (la primera vez Google pide autorización).
-3. Seleccione **Escuela**, **Programa académico** y el rango de fechas del
-   ciclo actual (**Desde / Hasta**). Solo se cuentan las respuestas enviadas en
-   ese rango: las de ciclos anteriores quedan fuera.
-4. Clic en **Exportar resultados (.csv)**. El archivo se descarga y queda
-   guardado en Drive junto a la hoja.
-5. En la herramienta de autoevaluación, abra la sesión del programa y use
-   **⬆ Cargar resultados (.csv)**.
+2. **Archivo → Descargar → Microsoft Excel (.xlsx)**. Se descargan las seis
+   pestañas (Estudiantes, Profesores, Empleadores, Directivos, Egresados,
+   Personal Administrativos).
+3. En la herramienta, abra la sesión del programa y pulse
+   **⬆ Cargar resultados de encuestas** → seleccione el .xlsx.
+4. **Respuestas del programa**: marque los valores de Escuela/Programa que
+   corresponden a su programa. La herramienta pre-marca los que coinciden;
+   revise variantes mal escritas (ej. "licencitura en artes").
+5. **Periodo del ciclo**: indique Desde / Hasta. Solo se cuentan las respuestas
+   enviadas en ese rango; las de ciclos anteriores quedan fuera.
+6. Revise la **vista previa** (encuestados por actor; en ámbar los actores con
+   menos de 5) y pulse **Aplicar resultados**.
+7. Borre el .xlsx descargado de su equipo: contiene nombres de encuestados.
 
-El archivo contiene solo **conteos agregados** por característica y actor. No
-incluye nombres, respuestas individuales ni observaciones.
+## Opción B · Plantilla de conteos (.csv) — sin acceso a la hoja
 
-## Opción B · Plantilla manual (sin acceso a la hoja)
-
-1. En el mismo menú, clic en **Descargar plantilla vacía (.csv)**, o pida la
-   plantilla a la oficina de autoevaluación.
-2. Diligencie por cada fila (actor × característica):
+1. Use `docs/plantilla_conteos.csv` (una fila por actor × característica).
+2. Reemplace `ESCRIBA_LA_ESCUELA`, `ESCRIBA_EL_PROGRAMA` y las fechas
+   (`AAAA-MM-DD`) en todas las filas. Escuela y programa deben escribirse
+   exactamente como en la herramienta.
+3. Diligencie:
 
 | Columna | Qué poner |
 |---|---|
-| Desde / Hasta | Fechas del ciclo, formato `AAAA-MM-DD` |
-| Encuestados | Número de personas de ese actor que respondieron (igual en todas las filas del actor) |
+| Encuestados | Personas de ese actor que respondieron (igual en todas las filas del actor) |
 | MuyFavorable … NoAplica | Cantidad de respuestas en cada opción, sumando todas las preguntas de esa característica |
 
-3. **No** modifique las columnas Escuela, Programa, Actor ni Codigo, ni los
-   encabezados. Guarde como **CSV UTF-8**.
-4. Cárguelo en la herramienta con **⬆ Cargar resultados (.csv)**.
+4. No modifique encabezados ni las columnas Actor y Codigo. Guarde como **CSV UTF-8**
+   y cárguelo con el mismo botón.
 
-## Reglas del formato
-
-- Encabezados exactos:
-  `Escuela,Programa,Desde,Hasta,Generado,Actor,Codigo,Encuestados,MuyFavorable,Favorable,Desfavorable,MuyDesfavorable,NoAplica`
-- `Codigo`: `C01` … `C51`.
-- `Actor`: Estudiantes, Profesores, Empleadores, Directivos, Egresados, Administrativos.
-- La herramienta rechaza el archivo si es de otro programa o si hay valores no numéricos.
-
-## Cálculo en la herramienta
+## Cálculo
 
 Muy favorable = 4 · Favorable = 3 · Desfavorable = 2 · Muy desfavorable = 1 ·
 No aplica = excluido. Se promedia por actor, luego entre actores (cada actor

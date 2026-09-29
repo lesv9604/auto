@@ -157,6 +157,9 @@ export const CharacteristicForm: React.FC<CharacteristicFormProps> = ({
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   Promedio Likert {evaluation.survey.likert.toFixed(2)} / 4 · por actor
                 </p>
+                {evaluation.survey.periodo && (
+                  <p className="text-[10px] text-slate-400">Respuestas del {evaluation.survey.periodo}</p>
+                )}
                 {Object.entries(evaluation.survey.byActor).map(([actor, a]: [string, SurveySummary['byActor'][string]]) => (
                   <div key={actor} className="flex items-center justify-between text-xs text-slate-700">
                     <span>{actor}</span>

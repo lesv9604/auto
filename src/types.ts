@@ -26,6 +26,7 @@ export interface SurveySummary {
     counts: { mf: number; f: number; d: number; md: number; na: number };
   }>;
   fetchedAt: string;
+  periodo?: string; // rango de fechas de las respuestas
   lowSample: boolean;
 }
 

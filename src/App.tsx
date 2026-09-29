@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ActiveTab, CharacteristicEvaluation, ProgramInfo, DiagnosticSession, ProgramLevel } from './types';
 import { CESU_FACTORS } from './data/cesuData';
 import {
@@ -6,7 +6,7 @@ import {
   createBlankEvaluationData,
 } from './data/unipazPrograms';
 import { calculateDiagnostics } from './utils/calc';
-import { applySurveyToEvaluations, SurveyPayload } from './utils/surveys';
+import { applySurveyToEvaluations, parseResultsCsv } from './utils/surveys';
 import { Header } from './components/Header';
 import { FactorNav } from './components/FactorNav';
 import { CharacteristicForm } from './components/CharacteristicForm';
@@ -87,9 +87,8 @@ export default function App() {
   const [activeFactorId, setActiveFactorId] = useState<number>(1);
   const [activeCharacteristicId, setActiveCharacteristicId] = useState<number>(1);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-  const [syncState, setSyncState] = useState<{ loading: boolean; msg: string | null; error: boolean }>(
-    { loading: false, msg: null, error: false }
-  );
+  const [syncState, setSyncState] = useState<{ msg: string | null; error: boolean }>({ msg: null, error: false });
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   // ── Persistir cambios en evaluaciones ──
   useEffect(() => {
@@ -235,22 +234,18 @@ export default function App() {
     }
   };
 
-  // ── Actualizar valoraciones desde las encuestas (Google Sheets vía /api/encuestas) ──
-  const handleSyncSurveys = async () => {
-    setSyncState({ loading: true, msg: null, error: false });
+  // ── Cargar resultados de encuestas (.csv exportado desde la hoja) ──
+  const handleCsvFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // permite volver a cargar el mismo archivo
+    if (!file) return;
     try {
-      const qs = new URLSearchParams({ escuela: programInfo.faculty, programa: programInfo.programName });
-      const res = await fetch(`/api/encuestas?${qs}`);
-      const data: SurveyPayload = await res.json();
-      if (!res.ok || data.error) throw new Error(data.error || `Error ${res.status}`);
-
-      setEvaluations((prev) => applySurveyToEvaluations(data, prev!));
-      const total = Object.values(data.actores).reduce((s, a) => s + a.n, 0);
-      const avisos = data.advertencias?.length ? ` · ${data.advertencias.length} advertencia(s)` : '';
-      setSyncState({ loading: false, msg: `${total} encuestados en total${avisos}`, error: false });
-      if (data.advertencias?.length) console.warn('Encuestas:', data.advertencias);
+      const payload = parseResultsCsv(await file.text(), programInfo.faculty, programInfo.programName);
+      setEvaluations((prev) => applySurveyToEvaluations(payload, prev!));
+      const total = Object.values(payload.actores).reduce((s, a) => s + a.n, 0);
+      setSyncState({ msg: `${total} encuestados · ${payload.desde} a ${payload.hasta}`, error: false });
     } catch (err) {
-      setSyncState({ loading: false, msg: (err as Error).message, error: true });
+      setSyncState({ msg: (err as Error).message, error: true });
     }
   };
 
@@ -291,12 +286,12 @@ export default function App() {
               {syncState.error ? '⚠ ' : '✓ '}{syncState.msg}
             </span>
           )}
+          <input ref={csvInputRef} type="file" accept=".csv,text/csv" onChange={handleCsvFile} className="hidden" />
           <button
-            onClick={handleSyncSurveys}
-            disabled={syncState.loading}
-            className="text-xs bg-white text-emerald-800 font-semibold hover:bg-emerald-50 disabled:opacity-60 px-3 py-1 rounded-full transition-colors"
+            onClick={() => csvInputRef.current?.click()}
+            className="text-xs bg-white text-emerald-800 font-semibold hover:bg-emerald-50 px-3 py-1 rounded-full transition-colors"
           >
-            {syncState.loading ? 'Consultando…' : '⟳ Actualizar desde encuestas'}
+            ⬆ Cargar resultados (.csv)
           </button>
         <button
           onClick={handleBackToSelector}

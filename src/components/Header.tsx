@@ -36,7 +36,7 @@ export const Header: React.FC<HeaderProps> = ({
   statusLevel
 }) => {
   return (
-    <header className="bg-white text-slate-900 border-b border-slate-200 shadow-xs sticky top-0 z-40">
+    <header className="bg-white text-slate-900 border-b border-slate-200 shadow-xs sticky top-0 z-40 print:hidden">
       {/* Top Bar: Brand, Title, and Action Buttons */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 border-b border-slate-100">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <button
-              onClick={() => window.print()}
+              onClick={() => { onSelectTab('report'); setTimeout(() => window.print(), 300); }}
               className="px-3 py-1.5 text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 rounded shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5 text-sky-600" />

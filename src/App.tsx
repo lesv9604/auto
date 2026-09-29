@@ -295,7 +295,7 @@ export default function App() {
       </div>
 
       {/* Main */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8 print:p-0 print:max-w-none">
         {activeTab === 'evaluator' && (
           <div className="flex flex-col lg:flex-row gap-6">
             <FactorNav

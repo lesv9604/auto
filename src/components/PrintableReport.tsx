@@ -246,7 +246,7 @@ export const PrintableReport: React.FC<PrintableReportProps> = ({ programInfo, d
                 Para cada característica se promedia por actor, luego se promedian los actores (cada actor pesa igual) y el
                 resultado se convierte a la escala 1–5 mediante <i>v = 1 + (x − 1) × 4/3</i>. La valoración de cada factor es el
                 promedio de sus características (igual peso) y la global el promedio de todas las características evaluadas.
-                Niveles: Pleno ≥ 4,5 · Alto ≥ 4,0 · Aceptable ≥ 3,0 · Deficiente &lt; 3,0. La apreciación del Comité (NC, CI, CA, CP) es un juicio cualitativo basado en evidencias sobre los aspectos por evaluar derivados del Acuerdo 01/2025 y no modifica la valoración numérica.
+                Niveles: Pleno ≥ 4,5 · Alto ≥ 4,0 · Aceptable ≥ 3,0 · Deficiente &lt; 3,0. La apreciación del Comité (NC, CI, CA, CP) es un juicio cualitativo basado en evidencias sobre los aspectos por evaluar de los Lineamientos del CESU (diciembre de 2025) y no modifica la valoración numérica.
               </p>
             </section>
 

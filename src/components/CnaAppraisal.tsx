@@ -38,8 +38,8 @@ export const CnaAppraisal: React.FC<Props> = ({ code, evaluation, onUpdate }) =>
           Aspectos por evaluar — Acuerdo CESU 01/2025
         </h3>
         <ol className="space-y-2 text-sm text-slate-700">
-          {info.aspectos.map((a, i) => (
-            <li key={i}><b className="text-slate-900">A{i + 1}.</b> {a}</li>
+          {info.aspectos.map((a) => (
+            <li key={a.n}><b className="text-slate-900">A{a.n}.</b> {a.texto}</li>
           ))}
         </ol>
         <p className="mt-3 text-[11px] text-slate-500 flex gap-1.5"><Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />{FUENTE_ASPECTOS}</p>

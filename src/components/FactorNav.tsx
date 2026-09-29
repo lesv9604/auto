@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FactorSummary, CharacteristicEvaluation } from '../types';
 import { CESU_FACTORS } from '../data/cesuData';
+import { statusDe } from '../utils/status';
 import { Search, ChevronRight, Layers, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface FactorNavProps {
@@ -21,7 +22,7 @@ export const FactorNav: React.FC<FactorNavProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
 
   // Totales globales de pendientes
-  const totalPending = factorSummaries.reduce((s, f) => s + f.pendingCount, 0);
+  const totalPending = CESU_FACTORS.reduce((s, f) => s + f.characteristics.filter((c) => statusDe(evaluations[c.id]).estado !== 'Evaluada').length, 0);
   const totalChars   = factorSummaries.reduce((s, f) => s + f.characteristicsCount, 0);
 
   const filteredFactors = CESU_FACTORS.filter((factor) => {
@@ -89,7 +90,7 @@ export const FactorNav: React.FC<FactorNavProps> = ({
         {filteredFactors.map((factor) => {
           const summary      = factorSummaries.find((s) => s.factorId === factor.id);
           const isFactorActive = factor.id === activeFactorId;
-          const pending      = summary?.pendingCount ?? factor.characteristics.length;
+          const pending      = factor.characteristics.filter((c) => statusDe(evaluations[c.id]).estado !== 'Evaluada').length;
           const hasPending   = pending > 0;
 
           return (
@@ -148,12 +149,14 @@ export const FactorNav: React.FC<FactorNavProps> = ({
                 {factor.characteristics.map((char) => {
                   const isCharActive = char.id === activeCharacteristicId;
                   const evalData     = evaluations[char.id];
-                  const isPending    = !evalData || (evalData.rating ?? 0) === 0;
+                  const st           = statusDe(evalData);
+                  const isPending    = st.estado !== 'Evaluada';
 
                   return (
                     <button
                       key={char.id}
                       onClick={() => onSelectCharacteristic(factor.id, char.id)}
+                      title={isPending ? `Falta: ${st.faltantes.join(', ')}` : 'Evaluada'}
                       className={`w-full text-left px-2.5 py-1.5 rounded text-xs flex items-center justify-between transition-colors cursor-pointer ${
                         isCharActive
                           ? 'bg-emerald-700 text-white font-medium shadow-sm'
